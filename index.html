@@ -4215,4 +4215,163 @@
         });
     </script>
 </body>
+
+    <!-- Модальное окно профиля -->
+<div id="profileModal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">👤 Мой профиль</h3>
+            <button class="modal-close" onclick="closeModal('profileModal')">✕</button>
+        </div>
+        
+        <!-- Информация профиля -->
+        <div class="card" style="margin-bottom: 20px; text-align: center;">
+            <div id="profileAvatarBig" class="profile-avatar-big" style="
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: var(--primary);
+                margin: 0 auto 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.5rem;
+                color: white;
+                border: 4px solid var(--primary-light);
+            "></div>
+            <h3 id="profileNameDisplay" style="font-size: 1.3rem; margin-bottom: 8px;"></h3>
+            <div style="color: var(--text-secondary);">
+                Уровень <span id="profileLevelDisplay" class="profile-level">1</span>
+                • <span id="profileExpDisplay">0/100 XP</span>
+            </div>
+        </div>
+        
+        <!-- Прогресс уровня -->
+        <div style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 600;">Прогресс уровня</span>
+                <span id="levelProgressText">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="levelProgressBar" style="width: 0%; background: var(--success);"></div>
+            </div>
+        </div>
+        
+        <!-- Настройки профиля -->
+        <div class="form-group">
+            <label class="form-label">👤 Имя</label>
+            <input type="text" class="form-input" id="profileName" 
+                   placeholder="Введите ваше имя" maxlength="20">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">🎯 Цели</label>
+            <select class="form-input" id="profileGoal">
+                <option value="strength">Сила</option>
+                <option value="mass">Набор массы</option>
+                <option value="fatloss">Похудение</option>
+                <option value="endurance">Выносливость</option>
+                <option value="health">Здоровье</option>
+                <option value="other">Другое</option>
+            </select>
+        </div>
+        
+        <!-- Выбор аватара -->
+        <div class="form-group">
+            <label class="form-label">🖼️ Аватар</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;" id="avatarGrid">
+                <!-- Аватары будут сгенерированы скриптом -->
+            </div>
+        </div>
+        
+        <!-- Статистика профиля -->
+        <div class="card" style="margin: 20px 0;">
+            <h4 style="font-size: 1rem; margin-bottom: 16px; color: var(--text);">📊 Статистика профиля</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--primary);" id="profileWorkouts">0</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Тренировок</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--success);" id="profileDays">0</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Дней</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--info);" id="profileVolume">0</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Общий тоннаж</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--warning);" id="profileStreak">0</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">Дней подряд</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn btn-success" onclick="saveProfile()">
+            <span>💾</span>
+            <span>Сохранить профиль</span>
+        </button>
+    </div>
+</div>
+
+<!-- Модальное окно выбора темы -->
+<div id="themeModal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">🎨 Настройки темы</h3>
+            <button class="modal-close" onclick="closeModal('themeModal')">✕</button>
+        </div>
+        
+        <div class="card" style="margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <div class="theme-preview light" onclick="selectTheme('light')" style="
+                    flex: 1;
+                    padding: 20px;
+                    border-radius: var(--radius-lg);
+                    background: #f8fafc;
+                    color: #1e293b;
+                    text-align: center;
+                    cursor: pointer;
+                    border: 2px solid var(--border);
+                    transition: all 0.2s ease;
+                ">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">☀️</div>
+                    <div style="font-weight: 600;">Светлая</div>
+                </div>
+                <div class="theme-preview dark" onclick="selectTheme('dark')" style="
+                    flex: 1;
+                    padding: 20px;
+                    border-radius: var(--radius-lg);
+                    background: #0f172a;
+                    color: #f1f5f9;
+                    text-align: center;
+                    cursor: pointer;
+                    border: 2px solid var(--border);
+                    transition: all 0.2s ease;
+                ">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🌙</div>
+                    <div style="font-weight: 600;">Тёмная</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">Автоматическая тема</div>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                        Следует системным настройкам
+                    </div>
+                </div>
+                <div style="position: relative;">
+                    <input type="checkbox" id="autoThemeToggle" hidden>
+                    <label for="autoThemeToggle" class="toggle-switch"></label>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="saveThemeSettings()">
+            <span>💾</span>
+            <span>Сохранить тему</span>
+        </button>
+    </div>
+</div>
 </html>
