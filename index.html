@@ -1059,7 +1059,639 @@
                 -webkit-overflow-scrolling: touch;
             }
         }
+
+        /* Стили для прогресс-бара уровня */
+        .level-progress {
+            width: 100%;
+            height: 6px;
+            background: var(--surface-dark);
+            border-radius: 3px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .level-progress-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Стили для карточки профиля */
+        .profile-card {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 600;
+            color: white;
+            background: var(--accent-gradient);
+            margin-bottom: 16px;
+            border: 4px solid var(--surface);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        /* Стили для графиков прогресса */
+        .chart-container {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Стили для переключателя темы */
+        .theme-switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .theme-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--surface-dark);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .theme-slider:before {
+            position: absolute;
+            content: "🌙";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+
+        input:checked + .theme-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .theme-slider:before {
+            transform: translateX(28px);
+            content: "☀️";
+        }
+
+        /* Стили для базы знаний */
+        .knowledge-categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .knowledge-categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .knowledge-category {
+            padding: 12px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .knowledge-category.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .article-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .article-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .article-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .article-preview {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Стили для программ тренировок */
+        .program-card {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .program-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 20px;
+        }
+
+        .program-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .program-details {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .program-detail {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .program-exercises {
+            margin-top: 16px;
+        }
+
+        .program-exercise {
+            padding: 12px;
+            background: var(--surface-dark);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Стили для раздела тренеров */
+        .trainer-tool {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .trainer-tool:hover {
+            background: var(--surface-dark);
+        }
+
+        .trainer-tool-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Стили для формы связи */
+        .contact-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+
+        .contact-option {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .contact-option:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .contact-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Стили для упрощенного режима */
+        .simple-mode .advanced-feature {
+            display: none !important;
+        }
+
+        .simple-control {
+            display: none;
+        }
+
+        .simple-mode .simple-control {
+            display: block !important;
+        }
+
+        /* Улучшенная адаптивность для мобильных */
+        @media (max-width: 480px) {
+            .nav-tab {
+                min-width: 60px;
+                padding: 12px 4px;
+                font-size: 0.8rem;
+                min-height: 60px;
+            }
+            
+            .nav-tab span:first-child {
+                font-size: 1.2rem;
+            }
+            
+            .profile-name {
+                max-width: 90px;
+            }
+            
+            .contact-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 250px;
+                padding: 15px;
+            }
+            
+            .knowledge-category {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+            
+            .program-details {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .nav-tabs {
+                padding: 3px;
+            }
+            
+            .nav-tab {
+                min-width: 55px;
+                font-size: 0.75rem;
+            }
+            
+            .app-title {
+                font-size: 1.3rem;
+            }
+            
+            .app-title span:first-child {
+                font-size: 1.7rem;
+            }
+        }
+
+        /* iOS специфичные улучшения */
+        @supports (-webkit-touch-callout: none) {
+            .main-content-wrapper {
+                margin-bottom: calc(90px + env(safe-area-inset-bottom));
+            }
+            
+            .app-footer {
+                padding-bottom: calc(14px + env(safe-area-inset-bottom));
+            }
+            
+            .app-header {
+                padding-top: max(18px, env(safe-area-inset-top));
+                height: calc(75px + env(safe-area-inset-top));
+            }
+            
+            .main-content {
+                padding-bottom: max(25px, env(safe-area-inset-bottom));
+            }
+            
+            /* Улучшение для скролла на iOS */
+            .main-content {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+            
+            /* Увеличение кликабельных областей */
+            .btn, .nav-tab, .exercise-item, .card {
+                min-height: 44px; /* Минимальный размер для iOS */
+            }
+            
+            .btn-icon {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
+
+        /* Улучшения для Android */
+        @media (-webkit-device-pixel-ratio: 2) {
+            /* Улучшение четкости для ретины */
+            .app-header {
+                backdrop-filter: blur(30px);
+            }
+        }
+
+        /* Улучшенные скроллбары */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* Анимация появления новых элементов */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-in {
+            animation: slideInRight 0.3s ease forwards;
+        }
+
+        /* Стили для сравнения прогресса */
+        .comparison-card {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .comparison-values {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: center;
+            text-align: center;
+        }
+
+        .comparison-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .comparison-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .comparison-diff {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            background: var(--surface-dark);
+        }
+
+        .diff-positive {
+            color: var(--success);
+        }
+
+        .diff-negative {
+            color: var(--danger);
+        }
+
+        .diff-neutral {
+            color: var(--text-secondary);
+        }
+
+        /* Стили для аватаров */
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .avatar-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Стили для цветных аватаров */
+        .avatar-color {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .avatar-color.selected {
+            border-color: var(--text);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Плавные переходы для темы */
+        .theme-transition * {
+            transition: background-color 0.3s ease, 
+                        border-color 0.3s ease, 
+                        color 0.3s ease,
+                        box-shadow 0.3s ease;
+        }
+
+        /* Улучшенные тени для глубины */
+        .depth-1 {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .depth-2 {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .depth-3 {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Градиентные акценты */
+        .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Улучшенные кнопки */
+        .btn-gradient {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-gradient:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0));
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn-gradient:hover:after {
+            opacity: 1;
+        }
     </style>
+
+        <!-- Chart.js для графиков прогресса -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Шапка -->
@@ -1540,6 +2172,542 @@
                 </div>
             </div>
 
+
+            <!-- Новый раздел: Прогресс и графики -->
+            <div id="progress" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📈 Прогресс тренировок</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <select class="form-input btn-sm" id="progressPeriod" onchange="updateProgressCharts()">
+                                <option value="week">Неделя</option>
+                                <option value="month" selected>Месяц</option>
+                                <option value="3months">3 месяца</option>
+                                <option value="year">Год</option>
+                                <option value="all">Все время</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Сравнение с прошлым -->
+                    <div class="comparison-card">
+                        <div class="comparison-header">
+                            <h3 class="card-title">📊 Сравнение с прошлой тренировкой</h3>
+                            <button class="btn btn-sm btn-info" onclick="loadComparison()">
+                                <span>🔄</span>
+                            </button>
+                        </div>
+                        <div id="comparisonContent">
+                            <!-- Данные сравнения будут загружены здесь -->
+                        </div>
+                    </div>
+                    
+                    <!-- Графики -->
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <span>📈 Общий тоннаж по тренировкам</span>
+                        </div>
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <span>🏋️ Прогресс в упражнениях</span>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <select class="form-input" id="exerciseSelect" onchange="updateExerciseChart()" style="width: 100%;">
+                                <option value="">Выберите упражнение...</option>
+                            </select>
+                        </div>
+                        <canvas id="exerciseChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">
+                            <span>📅 Частота тренировок</span>
+                        </div>
+                        <canvas id="frequencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новый раздел: Профиль пользователя -->
+            <div id="profile" class="section">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar-large" id="profileAvatar">👤</div>
+                        <h2 id="profileName" style="font-size: 1.5rem; margin-bottom: 8px;">Гость</h2>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-weight: 600; color: var(--primary);">Уровень</span>
+                            <span id="profileLevel" style="font-size: 1.3rem; font-weight: 700;">1</span>
+                        </div>
+                        <div style="margin-top: 10px; width: 100%; max-width: 300px;">
+                            <div class="level-progress">
+                                <div class="level-progress-fill" id="profileProgress" style="width: 0%"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                                    Опыт: <span id="currentXP">0</span>/<span id="nextLevelXP">100</span>
+                                </span>
+                                <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                                    До след. уровня: <span id="xpNeeded">100</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-card">
+                            <div class="stat-value" id="profileWorkouts">0</div>
+                            <div class="stat-label">Тренировок</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profileVolume">0</div>
+                            <div class="stat-label">Тоннаж (кг)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profileStreak">0</div>
+                            <div class="stat-label">Дней подряд</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="profileDays">0</div>
+                            <div class="stat-label">Дней в приложении</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Настройки профиля -->
+                <div class="card">
+                    <h2 class="card-title">⚙️ Настройки профиля</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">👤 Имя</label>
+                        <input type="text" class="form-input" id="profileNameInput" 
+                               placeholder="Введите ваше имя" maxlength="30">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">🎯 Цели</label>
+                        <textarea class="form-input" id="profileGoals" 
+                                  placeholder="Ваши цели в тренировках..." 
+                                  rows="3" style="resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">📏 Параметры (опционально)</label>
+                        <div class="input-row">
+                            <input type="number" class="form-input" id="profileWeight" 
+                                   placeholder="Вес (кг)" min="30" max="300" step="0.1">
+                            <input type="number" class="form-input" id="profileHeight" 
+                                   placeholder="Рост (см)" min="100" max="250">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="saveProfile()">
+                        <span>💾</span>
+                        <span>Сохранить профиль</span>
+                    </button>
+                </div>
+                
+                <!-- Настройки аватара -->
+                <div class="card">
+                    <h2 class="card-title">🖼️ Аватар</h2>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label class="form-label">😊 Эмодзи аватарки</label>
+                        <div class="avatar-grid">
+                            <div class="avatar-option" onclick="selectEmojiAvatar('👤')">👤</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('💪')">💪</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🏋️')">🏋️</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🚴')">🚴</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🏃')">🏃</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🧗')">🧗</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🤸')">🤸</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🥇')">🥇</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🔥')">🔥</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('⭐')">⭐</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('🎯')">🎯</div>
+                            <div class="avatar-option" onclick="selectEmojiAvatar('👑')">👑</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="form-label">🎨 Цветные аватары</label>
+                        <div class="avatar-grid">
+                            <div class="avatar-color" onclick="selectColorAvatar('#667eea')" style="background: #667eea;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#10b981')" style="background: #10b981;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#f59e0b')" style="background: #f59e0b;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#ef4444')" style="background: #ef4444;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#8b5cf6')" style="background: #8b5cf6;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#06b6d4')" style="background: #06b6d4;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#84cc16')" style="background: #84cc16;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#f97316')" style="background: #f97316;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#ec4899')" style="background: #ec4899;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#6366f1')" style="background: #6366f1;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#14b8a6')" style="background: #14b8a6;"></div>
+                            <div class="avatar-color" onclick="selectColorAvatar('#78716c')" style="background: #78716c;"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="saveAvatar()" style="margin-top: 20px;">
+                        <span>💾</span>
+                        <span>Сохранить аватар</span>
+                    </button>
+                </div>
+                
+                <!-- Настройки приложения -->
+                <div class="card">
+                    <h2 class="card-title">⚙️ Настройки приложения</h2>
+                    
+                    <div class="theme-switch-container">
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 4px;">Тема оформления</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                Переключение между светлой и темной темой
+                            </div>
+                        </div>
+                        <label class="theme-switch">
+                            <input type="checkbox" id="themeToggle">
+                            <span class="theme-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">📱 Режим отображения</label>
+                        <select class="form-input" id="displayMode">
+                            <option value="normal">Обычный</option>
+                            <option value="simple">Простой (для новичков)</option>
+                        </select>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px;">
+                            Простой режим скрывает сложные функции и статистику
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">📊 Единицы измерения</label>
+                        <select class="form-input" id="unitsSystem">
+                            <option value="metric">Метрическая система (кг, см)</option>
+                            <option value="imperial">Имперская система (фунты, дюймы)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-info" onclick="saveAppSettings()">
+                        <span>💾</span>
+                        <span>Сохранить настройки</span>
+                    </button>
+                </div>
+                
+                <!-- Раздел связи -->
+                <div class="card">
+                    <h2 class="card-title">📞 Обратная связь</h2>
+                    
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                        Нашли ошибку? Есть предложения по улучшению? Напишите нам!
+                    </p>
+                    
+                    <div class="contact-options">
+                        <div class="contact-option" onclick="showFeedbackModal()">
+                            <div class="contact-icon">📝</div>
+                            <div style="font-weight: 600;">Отправить отзыв</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
+                                Внутри приложения
+                            </div>
+                        </div>
+                        
+                        <div class="contact-option" onclick="exportFeedback()">
+                            <div class="contact-icon">📤</div>
+                            <div style="font-weight: 600;">Экспорт данных</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
+                                JSON файл
+                            </div>
+                        </div>
+                        
+                        <div class="contact-option" onclick="contactViaEmail()">
+                            <div class="contact-icon">✉️</div>
+                            <div style="font-weight: 600;">Email</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
+                                gympro@example.com
+                            </div>
+                        </div>
+                        
+                        <div class="contact-option" onclick="contactViaTelegram()">
+                            <div class="contact-icon">📱</div>
+                            <div style="font-weight: 600;">Telegram</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
+                                @gympro_support
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+                        <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--text);">Инструкция по обратной связи:</h3>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
+                            1. Используйте форму отзыва для предложений и ошибок<br>
+                            2. Экспортируйте данные для отправки разработчику<br>
+                            3. Для срочных вопросов используйте email или Telegram
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новый раздел: База знаний -->
+            <div id="knowledge" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📚 База знаний</h2>
+                        <input type="text" class="form-input btn-sm" id="knowledgeSearch" 
+                               placeholder="🔍 Поиск статей..." 
+                               oninput="filterArticles()" 
+                               style="width: 150px; padding: 10px 14px;">
+                    </div>
+                    
+                    <div class="knowledge-categories" id="knowledgeCategories">
+                        <!-- Категории будут загружены динамически -->
+                    </div>
+                    
+                    <div id="articlesList">
+                        <!-- Статьи будут загружены здесь -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новый раздел: Программы тренировок -->
+            <div id="programs" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🏆 Программы тренировок</h2>
+                        <select class="form-input btn-sm" id="programCategory" onchange="filterPrograms()" style="width: auto; padding: 10px 14px;">
+                            <option value="all">Все категории</option>
+                            <option value="beginner">Для начинающих</option>
+                            <option value="strength">На силу</option>
+                            <option value="mass">На массу</option>
+                            <option value="endurance">На выносливость</option>
+                            <option value="fatloss">На рельеф</option>
+                        </select>
+                    </div>
+                    
+                    <div id="programsList">
+                        <!-- Программы будут загружены здесь -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Новый раздел: Для тренеров -->
+            <div id="trainers" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">👨‍🏫 Инструменты для тренеров</h2>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                            Профессиональные инструменты
+                        </div>
+                    </div>
+                    
+                    <p style="color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6;">
+                        Специальные инструменты для тренеров и продвинутых спортсменов.
+                    </p>
+                    
+                    <div class="trainer-tool" onclick="showOneRepMaxCalculator()">
+                        <div class="trainer-tool-title">
+                            <span>🧮</span>
+                            <span>Калькулятор одноповторного максимума (1ПМ)</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Рассчитайте максимальный вес для одного повторения на основе субмаксимальных весов
+                        </div>
+                    </div>
+                    
+                    <div class="trainer-tool" onclick="showVolumeCalculator()">
+                        <div class="trainer-tool-title">
+                            <span>📊</span>
+                            <span>Калькулятор тренировочного объема</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Расчет тоннажа, среднего веса и интенсивности тренировки
+                        </div>
+                    </div>
+                    
+                    <div class="trainer-tool" onclick="showProgramPlanner()">
+                        <div class="trainer-tool-title">
+                            <span>📝</span>
+                            <span>Планировщик программ</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Создание и сохранение тренировочных программ для клиентов
+                        </div>
+                    </div>
+                    
+                    <div class="trainer-tool" onclick="showLoadAnalysis()">
+                        <div class="trainer-tool-title">
+                            <span>📈</span>
+                            <span>Анализ нагрузки</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Анализ распределения нагрузки по мышечным группам
+                        </div>
+                    </div>
+                    
+                    <div class="trainer-tool" onclick="showClientManager()">
+                        <div class="trainer-tool-title">
+                            <span>👥</span>
+                            <span>Менеджер клиентов</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                            Управление данными клиентов (локальное хранение)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Существующие разделы (тренировка, история, расписание, трекер, библиотека, инфо) -->
+            <!-- Они остаются без изменений, но будут обновлены для поддержки новой темы -->
+            <div id="workout" class="section">
+                <!-- Существующий контент без изменений -->
+            </div>
+
+            <div id="history" class="section">
+                <!-- Существующий контент без изменений -->
+            </div>
+
+            <div id="schedule" class="section">
+                <!-- Существующий контент без изменений -->
+            </div>
+
+            <div id="tracker" class="section">
+                <!-- Существующий контент без изменений -->
+            </div>
+
+            <div id="library" class="section">
+                <!-- Существующий контент без изменений -->
+            </div>
+
+            <div id="info" class="section">
+                <!-- Существующий контент без изменений -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="app-footer">
+        <button class="btn btn-primary" onclick="showSection('workout')">
+            <span>➕</span>
+            <span>Тренировка</span>
+        </button>
+        <button class="btn btn-secondary" onclick="showSection('home')">
+            <span>📊</span>
+            <span>Статистика</span>
+        </button>
+        <button class="btn btn-secondary" onclick="showSection('tracker')">
+            <span>🔥</span>
+            <span>Трекер</span>
+        </button>
+        <button class="btn btn-secondary" onclick="showSection('progress')">
+            <span>📈</span>
+            <span>Прогресс</span>
+        </button>
+    </footer>
+
+    <!-- Модальные окна (существующие + новые) -->
+    <div id="addExerciseModal" class="modal-overlay" style="display: none;">
+        <!-- Существующее содержимое -->
+    </div>
+
+    <div id="notificationsModal" class="modal-overlay" style="display: none;">
+        <!-- Существующее содержимое -->
+    </div>
+
+    <!-- Новое модальное окно для обратной связи -->
+    <div id="feedbackModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">📝 Обратная связь</h3>
+                <button class="modal-close" onclick="closeModal('feedbackModal')">✕</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Тип сообщения</label>
+                <select class="form-input" id="feedbackType">
+                    <option value="suggestion">Предложение по улучшению</option>
+                    <option value="bug">Сообщение об ошибке</option>
+                    <option value="question">Вопрос</option>
+                    <option value="feature">Запрос функции</option>
+                    <option value="other">Другое</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Заголовок</label>
+                <input type="text" class="form-input" id="feedbackTitle" 
+                       placeholder="Краткое описание" maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Подробное описание</label>
+                <textarea class="form-input" id="feedbackDescription" 
+                          placeholder="Опишите подробно..." 
+                          rows="5" style="resize: vertical;"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Контактная информация (необязательно)</label>
+                <input type="text" class="form-input" id="feedbackContact" 
+                       placeholder="Email или Telegram для ответа">
+            </div>
+            
+            <div style="display: flex; gap: 14px;">
+                <button class="btn btn-primary" onclick="submitFeedback()" style="flex: 2;">
+                    <span>📤</span>
+                    <span>Отправить</span>
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal('feedbackModal')" style="flex: 1;">
+                    <span>Отмена</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для калькулятора 1ПМ -->
+    <div id="oneRepMaxModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">🧮 Калькулятор 1ПМ</h3>
+                <button class="modal-close" onclick="closeModal('oneRepMaxModal')">✕</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Вес, который вы подняли (кг)</label>
+                <input type="number" class="form-input" id="rmWeight" 
+                       min="1" max="500" step="0.5" value="100">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Количество повторений</label>
+                <input type="number" class="form-input" id="rmReps" 
+                       min="1" max="20" value="5">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Формула расчета</label>
+                <select class="form-input" id="rmFormula">
+                    <option value="epley">Эпли (Epley) - для силовых</option>
+                    <option value="brzycki">Бржицки (Brzycki) - точная</option>
+                    <option value="lander">Ландер (Lander) - общая</option>
+                    <option value="oconnell">О'Коннелл (O'Connell) - для выносливости</option>
+                </select>
+            </div>
+            
+            <div id="rmResult" style="background: var(--surface-dark); padding: 20px; border-radius: var(--radius); margin-bottom: 20px; text-align: center; display: none;">
+                <div style="font-size: 2rem; font-weight: 700; color: var(--primary);" id="rmResultValue">0</div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary);">кг - ваш расчетный 1ПМ</div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="calculateOneRepMax()">
+                <span>🧮</span>
+                <span>Рассчитать</span>
+            </button>
+        </div>
+    </div>
+            
             <!-- Информация и помощь -->
             <div id="info" class="section">
                 <div class="card">
@@ -1789,6 +2957,39 @@
 
     <script>
         // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+         let userProfile = {
+            id: 'default',
+            name: 'Гость',
+            level: 1,
+            xp: 0,
+            avatarType: 'emoji',
+            avatarValue: '👤',
+            goals: '',
+            weight: null,
+            height: null,
+            joinedDate: new Date().toISOString(),
+            settings: {
+                theme: 'auto', // auto, light, dark
+                displayMode: 'normal', // normal, simple
+                units: 'metric', // metric, imperial
+                notifications: true
+            }
+        };
+
+        let appSettings = {
+            theme: 'auto',
+            displayMode: 'normal',
+            units: 'metric'
+        };
+
+        let trainingPrograms = [];
+        let knowledgeArticles = [];
+        let feedbackEntries = [];
+        
+        // Графики
+        let volumeChart = null;
+        let exerciseChart = null;
+        let frequencyChart = null;
         const tg = window.Telegram?.WebApp;
         let db;
         let currentHistoryPage = 1;
