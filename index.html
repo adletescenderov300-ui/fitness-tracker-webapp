@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitApp v2.0</title>
+    <title>FitApp v2.0 - Трекер тренировок</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="theme-dark">
@@ -14,8 +14,10 @@
             <div class="header-main">
                 <div class="logo-section">
                     <span class="logo-emoji">💪</span>
-                    <h1 class="app-title">FitApp</h1>
-                    <span class="app-version">v2.0</span>
+                    <div class="logo-text">
+                        <h1 class="app-title">FitApp</h1>
+                        <span class="app-version">v2.0</span>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <button id="theme-toggle-btn" class="icon-btn" aria-label="Сменить тему">
@@ -471,7 +473,12 @@
                         <button class="btn btn-outline modal-tab-btn" data-tab="custom">✏️ Свое упражнение</button>
                     </div>
                     <div class="modal-tab-content active" id="library-tab">
-                        <!-- Список из библиотеки -->
+                        <div class="exercise-search">
+                            <input type="text" id="exercise-search-input" class="input-field" placeholder="Поиск упражнений...">
+                        </div>
+                        <div id="exercises-library-modal-list">
+                            <!-- Список из библиотеки -->
+                        </div>
                     </div>
                     <div class="modal-tab-content" id="custom-tab">
                         <div class="form-row">
@@ -521,7 +528,9 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <!-- Содержимое уведомлений -->
+                    <div class="notification-list">
+                        <!-- Содержимое уведомлений -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -589,7 +598,27 @@
                     <button class="close-btn">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <!-- Форма профиля -->
+                    <div class="form-row">
+                        <label for="profile-name">Имя</label>
+                        <input type="text" id="profile-name" class="input-field">
+                    </div>
+                    <div class="form-row">
+                        <label for="profile-level">Уровень</label>
+                        <select id="profile-level" class="input-field">
+                            <option value="beginner">Новичок</option>
+                            <option value="intermediate">Средний</option>
+                            <option value="advanced">Продвинутый</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="profile-avatar">Аватар (URL)</label>
+                        <input type="text" id="profile-avatar" class="input-field">
+                    </div>
+                    <div class="form-row">
+                        <label for="profile-goals">Цели</label>
+                        <textarea id="profile-goals" class="input-field textarea-medium"></textarea>
+                    </div>
+                    <button id="save-profile-btn" class="btn btn-primary large-btn">💾 Сохранить профиль</button>
                 </div>
             </div>
         </div>
@@ -743,14 +772,44 @@
                         <button id="admin-add-exercise-btn" class="btn btn-primary">➕ Добавить упражнение</button>
 
                         <h4>Управление упражнениями</h4>
+                        <div class="search-and-filter">
+                            <input type="text" id="admin-exercise-search" class="input-field" placeholder="Поиск...">
+                            <select id="admin-exercise-filter" class="input-field">
+                                <option value="all">Все</option>
+                                <option value="chest">Грудь</option>
+                                <option value="back">Спина</option>
+                                <option value="legs">Ноги</option>
+                                <option value="shoulders">Плечи</option>
+                                <option value="arms">Руки</option>
+                                <option value="core">Пресс</option>
+                                <option value="cardio">Кардио</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
                         <div id="admin-exercises-list">
                             <!-- Список упражнений для управления -->
                         </div>
                     </div>
                     <div class="admin-tab-content" id="programs-admin-tab">
                         <h4>Добавить программу</h4>
-                        <!-- Аналогично форме выше -->
-                        <button class="btn btn-primary">➕ Добавить программу</button>
+                        <div class="form-row">
+                            <label for="admin-program-name">Название программы</label>
+                            <input type="text" id="admin-program-name" class="input-field">
+                        </div>
+                        <div class="form-row">
+                            <label for="admin-program-description">Описание</label>
+                            <textarea id="admin-program-description" class="input-field textarea-medium"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <label for="admin-program-json">JSON упражнений</label>
+                            <textarea id="admin-program-json" class="input-field textarea-large"></textarea>
+                        </div>
+                        <button id="admin-add-program-btn" class="btn btn-primary">➕ Добавить программу</button>
+
+                        <h4>Управление программами</h4>
+                        <div id="admin-programs-list">
+                            <!-- Список программ -->
+                        </div>
                     </div>
                     <div class="admin-tab-content" id="articles-admin-tab">
                         <h4>Добавить статью</h4>
@@ -778,12 +837,17 @@
                             <input type="text" id="admin-article-tags" class="input-field">
                         </div>
                         <button id="admin-add-article-btn" class="btn btn-primary">➕ Добавить статью</button>
+
+                        <h4>Управление статьями</h4>
+                        <div id="admin-articles-list">
+                            <!-- Список статей -->
+                        </div>
                     </div>
                     <div class="admin-tab-content" id="export-admin-tab">
                         <h4>Экспорт данных</h4>
                         <div class="form-row">
                             <label>Выберите данные для экспорта</label>
-                            <div>
+                            <div class="checkbox-group">
                                 <label><input type="checkbox" value="workouts"> Тренировки</label>
                                 <label><input type="checkbox" value="exercises"> Упражнения</label>
                                 <label><input type="checkbox" value="programs"> Программы</label>
@@ -797,25 +861,25 @@
                     <div class="admin-tab-content" id="import-admin-tab">
                         <h4>Импорт данных</h4>
                         <div class="form-row">
-                            <label for="import-file">Выберите файл для импорта (.docx)</label>
-                            <input type="file" id="import-file" accept=".docx">
+                            <label for="import-file">Выберите файл для импорта (.docx, .json)</label>
+                            <input type="file" id="import-file" accept=".docx,.json">
                         </div>
                         <div class="form-row">
                             <label>Тип импорта</label>
-                            <div>
+                            <div class="radio-group">
                                 <label><input type="radio" name="import-type" value="word"> Word документ (FITAPP формат)</label>
                                 <label><input type="radio" name="import-type" value="json"> JSON файл</label>
                             </div>
                         </div>
                         <div class="form-row">
                             <label>Опции импорта</label>
-                            <div>
-                                <label><input type="radio" name="import-options" value="replace"> Заменить существующие данные</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="import-options" value="replace" checked> Заменить существующие данные</label>
                                 <label><input type="radio" name="import-options" value="merge"> Объединить с существующими</label>
                             </div>
                         </div>
                         <button class="btn btn-primary">📥 Импорт данных</button>
-                        <details>
+                        <details class="import-format-details">
                             <summary>Формат Word документа:</summary>
                             <pre>[FITAPP_IMPORT]
 [УПРАЖНЕНИЯ]
@@ -837,6 +901,102 @@
 [КОНЕЦ]</pre>
                         </details>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Дополнительные модальные окна для справки -->
+        <div id="help-guides-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🏋️ Основы тренировок</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li>• Разминка: 5-10 минут перед тренировкой</li>
+                        <li>• Отдых между подходами: 60-90 секунд</li>
+                        <li>• Техника важнее веса!</li>
+                        <li>• Восстановление: 48 часов для мышц</li>
+                    </ul>
+                    <h3>🍎 Питание</h3>
+                    <ul>
+                        <li>• Белки: 1.6-2.2 г на кг веса</li>
+                        <li>• Углеводы: энергия для тренировок</li>
+                        <li>• Жиры: гормоны и здоровье</li>
+                        <li>• Вода: 30-40 мл на кг веса</li>
+                    </ul>
+                    <h3>❓ Частые вопросы</h3>
+                    <div class="faq-item">
+                        <p><strong>Q:</strong> Сколько раз в неделю тренироваться?</p>
+                        <p><strong>A:</strong> 3-4 раза для новичков</p>
+                    </div>
+                    <div class="faq-item">
+                        <p><strong>Q:</strong> Как прогрессировать?</p>
+                        <p><strong>A:</strong> Увеличивайте вес или повторения</p>
+                    </div>
+                    <div class="faq-item">
+                        <p><strong>Q:</strong> Что делать при плато?</p>
+                        <p><strong>A:</strong> Смените программу тренировок</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="feedback-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📢 Обратная связь</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label for="feedback-type">Тип сообщения</label>
+                        <select id="feedback-type" class="input-field">
+                            <option value="suggestion">Пожелание</option>
+                            <option value="bug">Ошибка</option>
+                            <option value="question">Вопрос</option>
+                            <option value="other">Другое</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="feedback-message">Сообщение</label>
+                        <textarea id="feedback-message" class="input-field textarea-medium"></textarea>
+                    </div>
+                    <button id="send-feedback-btn" class="btn btn-primary large-btn">📤 Отправить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="contact-dev-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📞 Связь с разработчиком</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Есть вопросы или предложения по приложению?</p>
+                    <button id="contact-email-btn" class="btn btn-outline">📧 Написать на почту</button>
+                    <button id="contact-telegram-btn" class="btn btn-outline">✈️ Написать в Telegram</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="about-app-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📱 О приложении</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <h2>FitApp v2.0</h2>
+                    <p>Приложение для отслеживания тренировок, питания и прогресса.</p>
+                    <div class="about-details">
+                        <p>📧 Поддержка: fitapp@example.com</p>
+                        <p>🔄 Обновления: Регулярно</p>
+                        <p>📱 Версия: 2.0</p>
+                    </div>
+                    <p>© 2024 FitApp</p>
                 </div>
             </div>
         </div>
