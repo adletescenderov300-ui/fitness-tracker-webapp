@@ -6,11 +6,12 @@
     <title>FitApp v2.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-dark"> <!-- Начинаем с тёмной темы -->
+<body class="theme-dark">
     <div id="app-container">
-        <!-- Верхняя панель (шапка) -->
+
+        <!-- Шапка приложения -->
         <header class="app-header">
-            <div class="header-content">
+            <div class="header-main">
                 <div class="logo-section">
                     <span class="logo-emoji">💪</span>
                     <h1 class="app-title">FitApp</h1>
@@ -28,11 +29,49 @@
             </div>
         </header>
 
+        <!-- Навигационное меню -->
+        <nav class="main-nav">
+            <button data-screen="home" class="nav-btn active">
+                <span class="nav-emoji">📊</span> <span class="nav-label">Главная</span>
+            </button>
+            <button data-screen="workout" class="nav-btn">
+                <span class="nav-emoji">🏋️</span> <span class="nav-label">Тренировка</span>
+            </button>
+            <button data-screen="progress" class="nav-btn">
+                <span class="nav-emoji">📈</span> <span class="nav-label">Прогресс</span>
+            </button>
+            <button data-screen="history" class="nav-btn">
+                <span class="nav-emoji">📜</span> <span class="nav-label">История</span>
+            </button>
+            <button data-screen="schedule" class="nav-btn">
+                <span class="nav-emoji">📅</span> <span class="nav-label">Расписание</span>
+            </button>
+            <button data-screen="tracker" class="nav-btn">
+                <span class="nav-emoji">🔥</span> <span class="nav-label">Трекер</span>
+            </button>
+            <button data-screen="programs" class="nav-btn">
+                <span class="nav-emoji">📋</span> <span class="nav-label">Программы</span>
+            </button>
+            <button data-screen="exercises" class="nav-btn">
+                <span class="nav-emoji">💪</span> <span class="nav-label">Упражнения</span>
+            </button>
+            <button data-screen="knowledge" class="nav-btn">
+                <span class="nav-emoji">📚</span> <span class="nav-label">База знаний</span>
+            </button>
+            <button data-screen="coach" class="nav-btn">
+                <span class="nav-emoji">👨‍🏫</span> <span class="nav-label">Тренеру</span>
+            </button>
+            <button data-screen="info" class="nav-btn">
+                <span class="nav-emoji">ℹ️</span> <span class="nav-label">Инфо</span>
+            </button>
+        </nav>
+
         <!-- Основной контент -->
         <main class="main-content">
+
             <!-- Экран: Главная -->
             <section id="screen-home" class="screen active">
-                <div class="hero-section">
+                <div class="welcome-section">
                     <h2 class="welcome-text">👋 Привет, спортсмен!</h2>
                     <p class="subtitle">Готов к новой тренировке? Следи за своим прогрессом и достигай целей!</p>
                 </div>
@@ -71,55 +110,42 @@
                         <!-- Сюда будут добавляться последние тренировки -->
                     </div>
                 </div>
+
+                <div class="quick-actions-secondary">
+                    <h3 class="section-title">⚡ Быстрые действия</h3>
+                    <div class="secondary-actions-grid">
+                        <button id="quick-workout-btn" class="btn btn-outline">➕ Быстрая тренировка</button>
+                        <button id="quick-calories-btn" class="btn btn-outline">🔥 Добавить калории</button>
+                    </div>
+                </div>
             </section>
 
             <!-- Экран: Тренировка -->
             <section id="screen-workout" class="screen">
-                <div id="active-workout-view" class="workout-view hidden">
-                    <h2 class="section-title">🏋️ Текущая тренировка</h2>
-                    <div class="workout-header">
-                        <h3 id="current-workout-name-display">-</h3>
-                        <button id="finish-workout-btn" class="btn btn-secondary">Завершить</button>
+                <h2 class="section-title">🏋️ Новая тренировка</h2>
+                <div class="workout-form">
+                    <div class="form-row">
+                        <label for="workout-name-input">🏷️ Название тренировки</label>
+                        <input type="text" id="workout-name-input" placeholder="Например: Тренировка груди" class="input-field">
                     </div>
-                    <div id="current-exercises-list" class="exercises-list">
-                        <!-- Сюда будут добавляться упражнения текущей тренировки -->
+                    <div class="form-row">
+                        <label for="workout-date">📅 Дата и время</label>
+                        <input type="datetime-local" id="workout-date" class="input-field">
                     </div>
-                </div>
-
-                <div id="new-workout-view" class="workout-view">
-                    <h2 class="section-title">🏋️ Начать новую тренировку</h2>
-                    <div class="workout-start-options">
-                        <button id="create-custom-workout-btn" class="btn btn-outline">Создать свою</button>
-                        <button id="use-template-btn" class="btn btn-outline">Из шаблона</button>
-                        <button id="use-program-day-btn" class="btn btn-outline">Из активной программы</button>
-                    </div>
-
-                    <!-- Если выбрана активная программа -->
-                    <div id="select-program-day-section" class="hidden">
-                        <h3>Выберите день программы:</h3>
-                        <div id="program-days-list" class="days-list">
-                            <!-- Сюда будут добавляться кнопки дней -->
-                        </div>
-                    </div>
-
-                    <!-- Форма создания своей тренировки -->
-                    <div id="custom-workout-form" class="workout-form hidden">
-                        <input type="text" id="workout-name-input" placeholder="Название тренировки" class="input-field">
+                    <div class="form-row">
+                        <label>💪 Упражнения</label>
+                        <button id="add-exercise-to-workout-btn" class="btn btn-outline">➕ Добавить</button>
                         <div id="workout-exercises-container" class="exercises-container">
                             <!-- Упражнения будут добавляться сюда -->
                         </div>
-                        <button id="add-exercise-to-workout-btn" class="btn btn-outline">➕ Добавить упражнение</button>
-                        <textarea id="workout-notes" placeholder="Заметки к тренировке" class="input-field textarea-medium"></textarea>
-                        <button id="save-workout-btn" class="btn btn-primary large-btn">💾 Сохранить</button>
                     </div>
-
-                    <!-- Форма завершения тренировки (с опцией шаблона) -->
-                    <div id="finish-workout-form" class="workout-form hidden">
-                        <h3>Тренировка завершена!</h3>
-                        <p>Хотите сохранить её как шаблон?</p>
-                        <input type="text" id="template-name-input" placeholder="Название шаблона" class="input-field">
-                        <button id="save-as-template-btn" class="btn btn-outline">Сохранить как шаблон</button>
-                        <button id="confirm-finish-workout-btn" class="btn btn-primary">Закрыть</button>
+                    <div class="form-row">
+                        <label for="workout-notes">📝 Заметки</label>
+                        <textarea id="workout-notes" class="input-field textarea-medium"></textarea>
+                    </div>
+                    <div class="form-row form-actions">
+                        <button id="save-workout-btn" class="btn btn-primary">💾 Сохранить тренировку</button>
+                        <button id="save-template-btn" class="btn btn-outline">📋 Шаблон</button>
                     </div>
                 </div>
             </section>
@@ -128,13 +154,17 @@
             <section id="screen-progress" class="screen">
                 <h2 class="section-title">📈 Прогресс тренировок</h2>
                 <div class="period-selector">
-                    <button class="btn btn-outline period-btn active" data-period="month">Месяц</button>
-                    <button class="btn btn-outline period-btn" data-period="3months">3 мес</button>
-                    <button class="btn btn-outline period-btn" data-period="6months">6 мес</button>
+                    <button class="btn btn-outline period-btn active" data-period="month">За месяц</button>
+                    <button class="btn btn-outline period-btn" data-period="3months">3 месяца</button>
+                    <button class="btn btn-outline period-btn" data-period="6months">6 месяцев</button>
                     <button class="btn btn-outline period-btn" data-period="year">Год</button>
                 </div>
                 <div class="comparison-stats">
-                    <h3>Сравнение</h3>
+                    <h3>🔄 Сравнение с прошлым</h3>
+                    <div class="stat-comparison">
+                        <span class="stat-label">📊 Количество тренировок</span>
+                        <span class="stat-value comparison-value" id="progress-workouts-change">+0%</span>
+                    </div>
                     <div class="stat-comparison">
                         <span class="stat-label">🏋️ Общий тоннаж</span>
                         <span class="stat-value comparison-value" id="progress-tonnage-change">+0%</span>
@@ -142,10 +172,6 @@
                     <div class="stat-comparison">
                         <span class="stat-label">⚖️ Средние веса</span>
                         <span class="stat-value comparison-value" id="progress-avg-weight-change">+0%</span>
-                    </div>
-                    <div class="stat-comparison">
-                        <span class="stat-label">📊 Кол-во тренировок</span>
-                        <span class="stat-value comparison-value" id="progress-workouts-change">+0%</span>
                     </div>
                 </div>
             </section>
@@ -155,8 +181,9 @@
                 <h2 class="section-title">📜 История тренировок</h2>
                 <div class="filter-buttons">
                     <button class="btn btn-outline filter-btn active" data-filter="all">Все</button>
-                    <button class="btn btn-outline filter-btn" data-filter="week">Неделя</button>
-                    <button class="btn btn-outline filter-btn" data-filter="month">Месяц</button>
+                    <button class="btn btn-outline filter-btn" data-filter="week">Эта неделя</button>
+                    <button class="btn btn-outline filter-btn" data-filter="month">Этот месяц</button>
+                    <button class="btn btn-outline filter-btn" data-filter="3months">3 месяца</button>
                 </div>
                 <div id="history-list" class="history-items">
                     <!-- Здесь будут отображаться тренировки -->
@@ -171,6 +198,7 @@
             <!-- Экран: Расписание -->
             <section id="screen-schedule" class="screen">
                 <h2 class="section-title">📅 Расписание тренировок</h2>
+                <p class="description">Выберите дни недели для тренировок. Напоминания будут приходить в выбранные дни.</p>
                 <div class="schedule-days">
                     <label class="day-checkbox">
                         <input type="checkbox" id="day-mon" value="mon"> Пн
@@ -199,7 +227,7 @@
                     <input type="time" id="reminder-time" class="input-field">
                 </div>
                 <div class="notification-toggle">
-                    <label for="enable-notifications">🔔 Включить уведомления:</label>
+                    <label for="enable-notifications">🔔 Уведомления:</label>
                     <input type="checkbox" id="enable-notifications">
                 </div>
                 <button id="save-schedule-btn" class="btn btn-primary large-btn">💾 Сохранить</button>
@@ -234,17 +262,28 @@
                             <div id="calories-progress-bar" class="progress-bar">
                                 <div class="progress-fill" style="width: 0%;"></div>
                             </div>
+                            <div class="progress-text">Калории <span id="calories-progress-text">0 / 2000 ккал</span></div>
                         </div>
                         <div class="quick-add-buttons">
-                            <button class="btn btn-outline quick-add-cal" data-amount="100">+100 ккал</button>
-                            <button class="btn btn-outline quick-add-cal" data-amount="200">+200 ккал</button>
-                            <button class="btn btn-outline quick-add-cal" data-amount="300">+300 ккал</button>
-                            <button class="btn btn-outline quick-add-cal" data-amount="500">+500 ккал</button>
+                            <h3>⚡ Быстрое добавление калорий</h3>
+                            <div class="buttons-grid">
+                                <button class="btn btn-outline quick-add-cal" data-amount="100">+100 ккал</button>
+                                <button class="btn btn-outline quick-add-cal" data-amount="200">+200 ккал</button>
+                                <button class="btn btn-outline quick-add-cal" data-amount="300">+300 ккал</button>
+                                <button class="btn btn-outline quick-add-cal" data-amount="500">+500 ккал</button>
+                            </div>
                         </div>
                         <div class="manual-add">
-                            <input type="number" id="calories-input" placeholder="Введите калории" class="input-field">
-                            <input type="text" id="calories-desc" placeholder="Описание (например: Завтрак)" class="input-field">
-                            <button id="add-calories-btn" class="btn btn-primary">➕ Добавить</button>
+                            <h3>📊 Сегодняшние записи</h3>
+                            <!-- Здесь будут отображаться записи -->
+                        </div>
+                        <div class="goal-settings">
+                            <h3>🎯 Настройки целей</h3>
+                            <div class="goal-setting-row">
+                                <label for="daily-calorie-goal">🎯 Дневная цель калорий</label>
+                                <input type="number" id="daily-calorie-goal" class="input-field" value="2000">
+                            </div>
+                            <button id="save-calorie-goal-btn" class="btn btn-outline">💾 Сохранить цели</button>
                         </div>
                     </div>
                     <div id="water-tab" class="tab-content">
@@ -262,16 +301,28 @@
                             <div id="water-progress-bar" class="progress-bar">
                                 <div class="progress-fill" style="width: 0%;"></div>
                             </div>
+                            <div class="progress-text">Вода <span id="water-progress-text">0.0 / 2.0 л</span></div>
                         </div>
                         <div class="quick-add-buttons">
-                            <button class="btn btn-outline quick-add-water" data-amount="0.25">+0.25 л</button>
-                            <button class="btn btn-outline quick-add-water" data-amount="0.5">+0.5 л</button>
-                            <button class="btn btn-outline quick-add-water" data-amount="0.75">+0.75 л</button>
-                            <button class="btn btn-outline quick-add-water" data-amount="1.0">+1.0 л</button>
+                            <h3>💧 Быстрое добавление воды</h3>
+                            <div class="buttons-grid">
+                                <button class="btn btn-outline quick-add-water" data-amount="0.25">+0.25 л</button>
+                                <button class="btn btn-outline quick-add-water" data-amount="0.5">+0.5 л</button>
+                                <button class="btn btn-outline quick-add-water" data-amount="0.75">+0.75 л</button>
+                                <button class="btn btn-outline quick-add-water" data-amount="1.0">+1.0 л</button>
+                            </div>
                         </div>
                         <div class="manual-add">
-                            <input type="number" step="0.01" id="water-input" placeholder="Введите литры" class="input-field">
-                            <button id="add-water-btn" class="btn btn-primary">💧 Добавить</button>
+                            <h3>📊 Сегодняшние записи</h3>
+                            <!-- Здесь будут отображаться записи -->
+                        </div>
+                        <div class="goal-settings">
+                            <h3>🎯 Настройки целей</h3>
+                            <div class="goal-setting-row">
+                                <label for="daily-water-goal">💧 Дневная цель воды (литры)</label>
+                                <input type="number" step="0.01" id="daily-water-goal" class="input-field" value="2.0">
+                            </div>
+                            <button id="save-water-goal-btn" class="btn btn-outline">💾 Сохранить цели</button>
                         </div>
                     </div>
                 </div>
@@ -280,6 +331,8 @@
             <!-- Экран: Программы -->
             <section id="screen-programs" class="screen">
                 <h2 class="section-title">📋 Программы тренировок</h2>
+                <p class="description">Выберите готовую программу тренировок или создайте свою. Программы помогут систематизировать ваши тренировки.</p>
+                <button id="add-program-btn" class="btn btn-primary">➕ Добавить</button>
                 <div class="program-filters">
                     <button class="btn btn-outline filter-btn active" data-filter="all">Все</button>
                     <button class="btn btn-outline filter-btn" data-filter="beginner">Для начинающих</button>
@@ -288,7 +341,6 @@
                     <button class="btn btn-outline filter-btn" data-filter="relief">На рельеф</button>
                     <button class="btn btn-outline filter-btn" data-filter="custom">Свои</button>
                 </div>
-                <button id="add-program-btn" class="btn btn-primary">➕ Добавить</button>
                 <div id="programs-list">
                     <!-- Здесь будут отображаться программы -->
                 </div>
@@ -318,39 +370,31 @@
             <section id="screen-knowledge" class="screen">
                 <h2 class="section-title">📚 База знаний</h2>
                 <div class="knowledge-content">
-                    <div class="article-preview">
-                        <h3>Как составить эффективную программу тренировок?</h3>
-                        <p>Правильная программа — это основа прогресса. Она должна учитывать...</p>
-                        <button class="btn btn-outline read-more-btn">Читать далее</button>
-                    </div>
-                    <div class="article-preview">
-                        <h3>Правила питания для набора мышечной массы</h3>
-                        <p>Чтобы мышцы росли, нужно правильно питаться. Вот основные принципы...</p>
-                        <button class="btn btn-outline read-more-btn">Читать далее</button>
-                    </div>
+                    <!-- Содержимое базы знаний -->
                 </div>
             </section>
 
             <!-- Экран: Тренеру -->
             <section id="screen-coach" class="screen">
                 <h2 class="section-title">👨‍🏫 Инструменты для тренеров</h2>
+                <p class="description">Профессиональные инструменты для планирования тренировок, расчета нагрузок и работы с клиентами.</p>
                 <div class="coach-tools">
                     <div class="tool-card">
                         <h3>🧮 Калькулятор 1ПМ</h3>
-                        <p>Рассчитайте одноповторный максимум.</p>
+                        <p>Рассчитайте одноповторный максимум по формуле Бжицкого или Эйпли</p>
                         <button class="btn btn-outline open-calculator-btn">Открыть</button>
                     </div>
                     <div class="tool-card">
                         <h3>📊 Планировщик нагрузок</h3>
-                        <p>Планируйте недельные и месячные нагрузки.</p>
+                        <p>Планируйте недельные и месячные нагрузки для клиентов</p>
                     </div>
                     <div class="tool-card">
                         <h3>📋 Шаблоны программ</h3>
-                        <p>Готовые шаблоны тренировочных программ.</p>
+                        <p>Готовые шаблоны тренировочных программ для разных целей</p>
                     </div>
                     <div class="tool-card">
                         <h3>📈 Отчеты по клиентам</h3>
-                        <p>Генерация отчетов о прогрессе.</p>
+                        <p>Генерация отчетов о прогрессе клиентов (экспорт в PDF)</p>
                     </div>
                 </div>
             </section>
@@ -360,43 +404,82 @@
                 <h2 class="section-title">ℹ️ Настройки и помощь</h2>
                 <div class="settings-section">
                     <div class="setting-item">
-                        <button id="profile-settings-btn" class="btn btn-outline setting-btn">👤 Профиль и настройки</button>
+                        <button id="profile-settings-btn" class="btn btn-outline setting-btn">
+                            👤 Профиль и настройки
+                            <span class="setting-desc">Имя, уровень, аватар, цели и личные настройки</span>
+                        </button>
                     </div>
                     <div class="setting-item">
-                        <button id="theme-settings-btn" class="btn btn-outline setting-btn">🎨 Тема и цвета</button>
+                        <button id="theme-settings-btn" class="btn btn-outline setting-btn">
+                            🎨 Тема и цвета
+                            <span class="setting-desc">Текущая тема: Тёмная. Нажмите для смены цветовой схемы</span>
+                        </button>
                     </div>
                     <div class="setting-item">
-                        <button id="interface-mode-btn" class="btn btn-outline setting-btn">🔄 Режим интерфейса</button>
+                        <button id="interface-mode-btn" class="btn btn-outline setting-btn">
+                            🔄 Режим интерфейса
+                            <span class="setting-desc">Простой режим (для новичков)</span>
+                        </button>
                     </div>
                     <div class="setting-item">
-                        <button id="export-data-btn" class="btn btn-outline setting-btn">📤 Экспорт данных</button>
+                        <button id="help-guides-btn" class="btn btn-outline setting-btn">
+                            🏋️ Основы тренировок / 🍎 Питание / ❓ Частые вопросы
+                        </button>
                     </div>
                     <div class="setting-item">
-                        <button id="import-data-btn" class="btn btn-outline setting-btn">📥 Импорт данных</button>
+                        <button id="feedback-btn" class="btn btn-outline setting-btn">
+                            📢 Обратная связь
+                        </button>
                     </div>
                     <div class="setting-item">
-                        <button id="about-app-btn" class="btn btn-outline setting-btn">📱 О приложении</button>
+                        <button id="contact-dev-btn" class="btn btn-outline setting-btn">
+                            📞 Связь с разработчиком
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button id="export-word-btn" class="btn btn-outline setting-btn">
+                            📤 Экспорт в Word
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button id="import-word-btn" class="btn btn-outline setting-btn">
+                            📥 Импорт из Word
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button id="about-app-btn" class="btn btn-outline setting-btn">
+                            📱 О приложении
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- Модальные окна -->
-            <div id="modal-overlay" class="modal-overlay hidden"></div>
-            
-            <div id="add-exercise-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>➕ Добавить упражнение</h3>
-                        <button class="close-btn">&times;</button>
-                    </div>
-                    <div class="modal-body">
+        </main>
+
+        <!-- Модальные окна -->
+        <div id="modal-overlay" class="modal-overlay hidden"></div>
+
+        <div id="add-exercise-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>➕ Добавить упражнение</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-tabs">
                         <button class="btn btn-outline modal-tab-btn active" data-tab="library">📚 Из библиотеки</button>
                         <button class="btn btn-outline modal-tab-btn" data-tab="custom">✏️ Свое упражнение</button>
-                        <div class="modal-tab-content active" id="library-tab">
-                            <!-- Список из библиотеки -->
+                    </div>
+                    <div class="modal-tab-content active" id="library-tab">
+                        <!-- Список из библиотеки -->
+                    </div>
+                    <div class="modal-tab-content" id="custom-tab">
+                        <div class="form-row">
+                            <label for="custom-exercise-name">Название упражнения</label>
+                            <input type="text" id="custom-exercise-name" class="input-field">
                         </div>
-                        <div class="modal-tab-content" id="custom-tab">
-                            <input type="text" id="custom-exercise-name" placeholder="Название упражнения" class="input-field">
+                        <div class="form-row">
+                            <label for="custom-exercise-muscle-group">Группа мышц</label>
                             <select id="custom-exercise-muscle-group" class="input-field">
                                 <option value="chest">Грудь</option>
                                 <option value="back">Спина</option>
@@ -407,161 +490,357 @@
                                 <option value="cardio">Кардио</option>
                                 <option value="other">Другое</option>
                             </select>
-                            <textarea id="custom-exercise-description" placeholder="Описание (опционально)" class="input-field textarea-small"></textarea>
-                            <button id="add-custom-exercise-btn" class="btn btn-primary">➕ Добавить упражнение</button>
                         </div>
+                        <div class="form-row">
+                            <label for="custom-exercise-subgroup">Подгруппа мышц</label>
+                            <select id="custom-exercise-subgroup" class="input-field">
+                                <option value="pectoralis_major">Большая грудная (Грудь)</option>
+                                <option value="latissimus_dorsi">Широчайшая (Спина)</option>
+                                <option value="quadriceps">Квадрицепс (Ноги)</option>
+                                <option value="deltoids">Дельты (Плечи)</option>
+                                <option value="triceps">Трицепс (Руки)</option>
+                                <option value="rectus_abdominis">Прямая (Пресс)</option>
+                                <option value="running">Бег (Кардио)</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label for="custom-exercise-description">📝 Описание (опционально)</label>
+                            <textarea id="custom-exercise-description" class="input-field textarea-small"></textarea>
+                        </div>
+                        <button id="add-custom-exercise-btn" class="btn btn-primary large-btn">➕ Добавить упражнение</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="add-calories-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>🔥 Добавить калории</h3>
-                        <button class="close-btn">&times;</button>
+        <div id="notifications-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🔔 Уведомления</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Содержимое уведомлений -->
+                </div>
+            </div>
+        </div>
+
+        <div id="add-calories-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🔥 Добавить калории</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label for="calories-modal-input">Количество калорий</label>
+                        <input type="number" id="calories-modal-input" class="input-field">
                     </div>
-                    <div class="modal-body">
-                        <input type="number" id="calories-modal-input" placeholder="Количество калорий" class="input-field">
-                        <input type="text" id="calories-modal-desc" placeholder="Описание (например: Завтрак)" class="input-field">
+                    <div class="form-row">
+                        <label for="calories-modal-desc">Описание (например: Завтрак, Обед)</label>
+                        <input type="text" id="calories-modal-desc" class="input-field">
+                    </div>
+                    <div class="form-row">
+                        <label for="calories-modal-time">Время</label>
                         <input type="time" id="calories-modal-time" class="input-field">
-                        <button id="add-calories-modal-btn" class="btn btn-primary">➕ Добавить</button>
                     </div>
+                    <button id="add-calories-modal-btn" class="btn btn-primary large-btn">➕ Добавить</button>
                 </div>
             </div>
+        </div>
 
-            <div id="add-water-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>💧 Добавить воду</h3>
-                        <button class="close-btn">&times;</button>
+        <div id="add-water-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>💧 Добавить воду</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label for="water-modal-input">Количество воды (литры)</label>
+                        <input type="number" step="0.01" id="water-modal-input" class="input-field">
                     </div>
-                    <div class="modal-body">
-                        <input type="number" step="0.01" id="water-modal-input" placeholder="Количество воды (литры)" class="input-field">
+                    <div class="form-row">
+                        <label for="water-modal-time">Время</label>
                         <input type="time" id="water-modal-time" class="input-field">
-                        <button id="add-water-modal-btn" class="btn btn-primary">💧 Добавить</button>
                     </div>
+                    <button id="add-water-modal-btn" class="btn btn-primary large-btn">💧 Добавить</button>
                 </div>
             </div>
+        </div>
 
-            <div id="edit-workout-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>✏️ Редактировать тренировку</h3>
-                        <button class="close-btn">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Содержимое для редактирования -->
-                    </div>
+        <div id="edit-workout-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>✏️ Редактировать тренировку</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Содержимое для редактирования -->
                 </div>
             </div>
+        </div>
 
-            <div id="profile-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>👤 Профиль пользователя</h3>
-                        <button class="close-btn">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Форма профиля -->
-                    </div>
+        <div id="profile-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>👤 Профиль пользователя</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Форма профиля -->
                 </div>
             </div>
+        </div>
 
-            <div id="theme-settings-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>🎨 Настройки темы и цветов</h3>
-                        <button class="close-btn">&times;</button>
+        <div id="theme-settings-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🎨 Настройки темы и цветов</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="theme-toggle-group">
+                        <button class="btn btn-outline theme-mode-btn active" data-mode="dark">🌙 Тёмная</button>
+                        <button class="btn btn-outline theme-mode-btn" data-mode="light">☀️ Светлая</button>
+                        <button class="btn btn-outline theme-mode-btn" data-mode="auto">🔄 Авто</button>
                     </div>
-                    <div class="modal-body">
-                        <div class="theme-toggle-group">
-                            <button class="btn btn-outline theme-mode-btn active" data-mode="dark">🌙 Тёмная</button>
-                            <button class="btn btn-outline theme-mode-btn" data-mode="light">☀️ Светлая</button>
-                            <button class="btn btn-outline theme-mode-btn" data-mode="auto">🔄 Авто</button>
+                    <div class="accent-color-picker">
+                        <label>🎨 Цветовая схема:</label>
+                        <div class="color-option" style="background-color: #4F46E5;" data-color="indigo"></div>
+                        <div class="color-option" style="background-color: #10B981;" data-color="emerald"></div>
+                        <div class="color-option" style="background-color: #8B5CF6;" data-color="violet"></div>
+                        <div class="color-option" style="background-color: #F97316;" data-color="orange"></div>
+                        <div class="color-option" style="background-color: #3B82F6;" data-color="blue"></div>
+                    </div>
+                    <button id="save-theme-settings-btn" class="btn btn-primary large-btn">💾 Сохранить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="calculator-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🧮 Калькулятор 1ПМ</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label for="calc-weight">Вес (кг)</label>
+                        <input type="number" id="calc-weight" class="input-field">
+                    </div>
+                    <div class="form-row">
+                        <label for="calc-reps">Повторения</label>
+                        <input type="number" id="calc-reps" class="input-field">
+                    </div>
+                    <button id="calculate-1rm-btn" class="btn btn-primary large-btn">Рассчитать</button>
+                    <div id="result-1rm" class="result">Результат: -</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="add-program-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📋 Добавить программу тренировок</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <label for="program-name-input">Название программы</label>
+                        <input type="text" id="program-name-input" class="input-field">
+                    </div>
+                    <div class="form-row">
+                        <label for="program-level">Уровень сложности</label>
+                        <select id="program-level" class="input-field">
+                            <option value="beginner">Для начинающих</option>
+                            <option value="intermediate">Средний уровень</option>
+                            <option value="advanced">Продвинутый уровень</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="program-type">Тип программы</label>
+                        <select id="program-type" class="input-field">
+                            <option value="strength">На силу</option>
+                            <option value="hypertrophy">На массу</option>
+                            <option value="cutting">На рельеф</option>
+                            <option value="endurance">На выносливость</option>
+                            <option value="fullbody">На всё тело</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="program-duration">Длительность (недель)</label>
+                        <input type="number" id="program-duration" class="input-field" value="4">
+                    </div>
+                    <div class="form-row">
+                        <label for="program-description">Описание программы</label>
+                        <textarea id="program-description" class="input-field textarea-medium"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label for="program-exercises-json">Упражнения (JSON формат)</label>
+                        <textarea id="program-exercises-json" class="input-field textarea-large">[{"name": "Пример упражнения", "sets": 3, "reps": "8-12"}]</textarea>
+                    </div>
+                    <button id="save-program-from-modal-btn" class="btn btn-primary large-btn">➕ Добавить программу</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="admin-panel-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🔧 Админ-панель FitApp</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="admin-tabs">
+                        <button class="btn btn-outline admin-tab-btn active" data-tab="exercises">💪 Упражнения</button>
+                        <button class="btn btn-outline admin-tab-btn" data-tab="programs">📋 Программы</button>
+                        <button class="btn btn-outline admin-tab-btn" data-tab="articles">📚 Статьи</button>
+                        <button class="btn btn-outline admin-tab-btn" data-tab="export">📤 Экспорт</button>
+                        <button class="btn btn-outline admin-tab-btn" data-tab="import">📥 Импорт</button>
+                    </div>
+                    <div class="admin-tab-content active" id="exercises-admin-tab">
+                        <h4>Добавить упражнение</h4>
+                        <div class="form-row">
+                            <label for="admin-exercise-name">Название упражнения</label>
+                            <input type="text" id="admin-exercise-name" class="input-field">
                         </div>
-                        <div class="accent-color-picker">
-                            <label>🎨 Акцентный цвет:</label>
-                            <div class="color-option" style="background-color: #0D3B66;" data-color="#0D3B66"></div>
-                            <div class="color-option" style="background-color: #EAEAEA;" data-color="#EAEAEA"></div>
-                            <div class="color-option" style="background-color: #FF6B6B;" data-color="#FF6B6B"></div>
+                        <div class="form-row">
+                            <label for="admin-exercise-muscle-group">Группа мышц</label>
+                            <select id="admin-exercise-muscle-group" class="input-field">
+                                <option value="chest">Грудь</option>
+                                <option value="back">Спина</option>
+                                <option value="legs">Ноги</option>
+                                <option value="shoulders">Плечи</option>
+                                <option value="arms">Руки</option>
+                                <option value="core">Пресс</option>
+                                <option value="cardio">Кардио</option>
+                                <option value="other">Другое</option>
+                            </select>
                         </div>
-                        <button id="save-theme-settings-btn" class="btn btn-primary">💾 Сохранить</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="calculator-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>🧮 Калькулятор 1ПМ</h3>
-                        <button class="close-btn">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="number" id="calc-weight" placeholder="Вес (кг)" class="input-field">
-                        <input type="number" id="calc-reps" placeholder="Повторения" class="input-field">
-                        <button id="calculate-1rm-btn" class="btn btn-primary">Рассчитать</button>
-                        <div id="result-1rm" class="result">Результат: -</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="add-program-modal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>📋 Добавить программу тренировок</h3>
-                        <button class="close-btn">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="text" id="program-name-input" placeholder="Название программы" class="input-field">
-                        <textarea id="program-description-input" placeholder="Описание программы" class="input-field textarea-medium"></textarea>
-                        <!-- Форма добавления дней и упражнений -->
-                        <div id="program-days-editor">
-                            <!-- Здесь будут редактироваться дни программы -->
+                        <div class="form-row">
+                            <label for="admin-exercise-subgroup">Подгруппа мышц</label>
+                            <select id="admin-exercise-subgroup" class="input-field">
+                                <option value="pectoralis_major">Большая грудная (Грудь)</option>
+                                <option value="latissimus_dorsi">Широчайшая (Спина)</option>
+                                <option value="quadriceps">Квадрицепс (Ноги)</option>
+                                <option value="deltoids">Дельты (Плечи)</option>
+                                <option value="triceps">Трицепс (Руки)</option>
+                                <option value="rectus_abdominis">Прямая (Пресс)</option>
+                                <option value="running">Бег (Кардио)</option>
+                                <option value="other">Другое</option>
+                            </select>
                         </div>
-                        <button id="add-program-day-btn" class="btn btn-outline">➕ Добавить день</button>
-                        <button id="save-program-btn" class="btn btn-primary">💾 Сохранить программу</button>
+                        <div class="form-row">
+                            <label for="admin-exercise-description">Описание упражнения</label>
+                            <textarea id="admin-exercise-description" class="input-field textarea-small"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <label for="admin-exercise-image-url">URL фото (опционально)</label>
+                            <input type="text" id="admin-exercise-image-url" class="input-field">
+                        </div>
+                        <button id="admin-add-exercise-btn" class="btn btn-primary">➕ Добавить упражнение</button>
+
+                        <h4>Управление упражнениями</h4>
+                        <div id="admin-exercises-list">
+                            <!-- Список упражнений для управления -->
+                        </div>
+                    </div>
+                    <div class="admin-tab-content" id="programs-admin-tab">
+                        <h4>Добавить программу</h4>
+                        <!-- Аналогично форме выше -->
+                        <button class="btn btn-primary">➕ Добавить программу</button>
+                    </div>
+                    <div class="admin-tab-content" id="articles-admin-tab">
+                        <h4>Добавить статью</h4>
+                        <div class="form-row">
+                            <label for="admin-article-title">Заголовок статьи</label>
+                            <input type="text" id="admin-article-title" class="input-field">
+                        </div>
+                        <div class="form-row">
+                            <label for="admin-article-category">Категория</label>
+                            <select id="admin-article-category" class="input-field">
+                                <option value="technique">Техника</option>
+                                <option value="nutrition">Питание</option>
+                                <option value="recovery">Восстановление</option>
+                                <option value="principles">Принципы</option>
+                                <option value="safety">Безопасность</option>
+                                <option value="psychology">Психология</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label for="admin-article-content">Содержимое статьи</label>
+                            <textarea id="admin-article-content" class="input-field textarea-large"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <label for="admin-article-tags">Теги (через запятую)</label>
+                            <input type="text" id="admin-article-tags" class="input-field">
+                        </div>
+                        <button id="admin-add-article-btn" class="btn btn-primary">➕ Добавить статью</button>
+                    </div>
+                    <div class="admin-tab-content" id="export-admin-tab">
+                        <h4>Экспорт данных</h4>
+                        <div class="form-row">
+                            <label>Выберите данные для экспорта</label>
+                            <div>
+                                <label><input type="checkbox" value="workouts"> Тренировки</label>
+                                <label><input type="checkbox" value="exercises"> Упражнения</label>
+                                <label><input type="checkbox" value="programs"> Программы</label>
+                                <label><input type="checkbox" value="knowledge"> База знаний</label>
+                                <label><input type="checkbox" value="profile"> Профиль</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">📤 Экспорт в Word</button>
+                        <button class="btn btn-outline">📁 Экспорт в JSON</button>
+                    </div>
+                    <div class="admin-tab-content" id="import-admin-tab">
+                        <h4>Импорт данных</h4>
+                        <div class="form-row">
+                            <label for="import-file">Выберите файл для импорта (.docx)</label>
+                            <input type="file" id="import-file" accept=".docx">
+                        </div>
+                        <div class="form-row">
+                            <label>Тип импорта</label>
+                            <div>
+                                <label><input type="radio" name="import-type" value="word"> Word документ (FITAPP формат)</label>
+                                <label><input type="radio" name="import-type" value="json"> JSON файл</label>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>Опции импорта</label>
+                            <div>
+                                <label><input type="radio" name="import-options" value="replace"> Заменить существующие данные</label>
+                                <label><input type="radio" name="import-options" value="merge"> Объединить с существующими</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary">📥 Импорт данных</button>
+                        <details>
+                            <summary>Формат Word документа:</summary>
+                            <pre>[FITAPP_IMPORT]
+[УПРАЖНЕНИЯ]
+Название: Жим штанги лежа
+Группа: Грудь
+Подгруппа: Большая грудная
+Описание: Базовое упражнение...
+
+[КОНЕЦ_УПРАЖНЕНИЯ]
+
+[ПРОГРАММЫ]
+Название: Базовая программа
+Уровень: beginner
+Тип: fullbody
+Описание: Описание программы...
+Упражнения: [{"name": "Упражнение", "sets": 3, "reps": "8-12"}]
+[КОНЕЦ_ПРОГРАММЫ]
+
+[КОНЕЦ]</pre>
+                        </details>
                     </div>
                 </div>
             </div>
+        </div>
 
-        </main>
-
-        <!-- Нижняя панель навигации -->
-        <nav class="bottom-nav">
-            <button data-screen="home" class="nav-btn active">
-                <span class="nav-emoji">📊</span> <span class="nav-label">Главная</span>
-            </button>
-            <button data-screen="workout" class="nav-btn">
-                <span class="nav-emoji">🏋️</span> <span class="nav-label">Тренировка</span>
-            </button>
-            <button data-screen="progress" class="nav-btn">
-                <span class="nav-emoji">📈</span> <span class="nav-label">Прогресс</span>
-            </button>
-            <button data-screen="history" class="nav-btn">
-                <span class="nav-emoji">📜</span> <span class="nav-label">История</span>
-            </button>
-            <button data-screen="schedule" class="nav-btn">
-                <span class="nav-emoji">📅</span> <span class="nav-label">Расписание</span>
-            </button>
-            <button data-screen="tracker" class="nav-btn">
-                <span class="nav-emoji">🔥</span> <span class="nav-label">Трекер</span>
-            </button>
-            <button data-screen="programs" class="nav-btn">
-                <span class="nav-emoji">📋</span> <span class="nav-label">Программы</span>
-            </button>
-            <button data-screen="exercises" class="nav-btn">
-                <span class="nav-emoji">💪</span> <span class="nav-label">Упражнения</span>
-            </button>
-            <button data-screen="knowledge" class="nav-btn">
-                <span class="nav-emoji">📚</span> <span class="nav-label">База знаний</span>
-            </button>
-            <button data-screen="coach" class="nav-btn">
-                <span class="nav-emoji">👨‍🏫</span> <span class="nav-label">Тренеру</span>
-            </button>
-            <button data-screen="info" class="nav-btn">
-                <span class="nav-emoji">ℹ️</span> <span class="nav-label">Инфо</span>
-            </button>
-        </nav>
     </div>
 
     <script src="script.js"></script>
