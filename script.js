@@ -1,233 +1,124 @@
-// --- Глобальные переменные ---
+// --- Глобальные переменные и состояния ---
 let currentScreen = 'home';
-let currentWorkout = null; // Активная тренировка (временно, для UI)
-let isWorkoutActive = false; // Флаг активной тренировки
-let activeProgram = null; // Активная программа
-let templates = loadData('templates') || [];
-let workouts = loadData('workouts') || [];
-let programs = loadData('programs') || [];
-let schedule = loadData('schedule') || { days: [], reminderTime: '', enabled: false };
-let trackerData = loadData('trackerData') || { calories: {}, water: {} }; // Данные по дням
-let userGoals = loadData('userGoals') || { calories: 2000, water: 2.0 }; // Цели
-let userSettings = loadData('userSettings') || { interfaceMode: 'standard' }; // Доп. настройки
-let exercisesLibrary = loadData('exercisesLibrary') || [
-    { id: 'bench_press', name: 'Жим лежа', muscleGroup: 'chest', subgroup: 'pectoralis_major', description: 'Базовое упражнение для развития грудных мышц.', image: '' },
-    { id: 'squat', name: 'Приседания', muscleGroup: 'legs', subgroup: 'quadriceps', description: 'Классическое упражнение для ног и ягодиц.', image: '' },
-    { id: 'deadlift', name: 'Становая тяга', muscleGroup: 'back', subgroup: 'erector_spinae', description: 'Многосуставное упражнение для спины, ног и ягодиц.', image: '' },
-    { id: 'pull_up', name: 'Подтягивания', muscleGroup: 'back', subgroup: 'latissimus_dorsi', description: 'Упражнение для развития спины и бицепсов.', image: '' },
-    { id: 'push_up', name: 'Отжимания', muscleGroup: 'chest', subgroup: 'pectorals', description: 'Упражнение для груди, плеч и трицепсов без снаряжения.', image: '' },
-    { id: 'plank', name: 'Планка', muscleGroup: 'core', subgroup: 'rectus_abdominis', description: 'Изометрическое упражнение для пресса.', image: '' },
-    { id: 'barbell_row', name: 'Тяга штанги в наклоне', muscleGroup: 'back', subgroup: 'rhomboids', description: 'Упражнение для средней части спины.', image: '' },
-    { id: 'overhead_press', name: 'Жим стоя', muscleGroup: 'shoulders', subgroup: 'deltoids', description: 'Упражнение для развития плечевого пояса.', image: '' },
-    { id: 'bicep_curl', name: 'Сгибание рук со штангой', muscleGroup: 'arms', subgroup: 'biceps', description: 'Изолирующее упражнение для бицепсов.', image: '' },
-    { id: 'tricep_extension', name: 'Французский жим', muscleGroup: 'arms', subgroup: 'triceps', description: 'Упражнение для развития трицепсов.', image: '' },
-];
-let knowledgeArticles = loadData('knowledgeArticles') || [
-    { id: 'article1', title: 'Как составить эффективную программу тренировок?', category: 'principles', tags: ['программа', 'мышцы'], content: 'Содержимое статьи...' },
-    { id: 'article2', title: 'Правила питания для набора мышечной массы', category: 'nutrition', tags: ['питание', 'масса'], content: 'Содержимое статьи...' },
-    { id: 'article3', title: 'Техника выполнения жима лежа', category: 'technique', tags: ['техника', 'грудь'], content: 'Содержимое статьи...' },
-    { id: 'article4', title: 'Как избежать травм в зале', category: 'safety', tags: ['безопасность', 'травмы'], content: 'Содержимое статьи...' },
-];
+let currentPage = 1; // Для пагинации в истории
+const itemsPerPage = 5; // Элементов на странице истории
 
-// --- Инициализация при загрузке ---
+// --- Состояния данных (имитация LocalStorage) ---
+// Эти переменные будут хранить данные в памяти до тех пор, пока не будет реализовано сохранение.
+let appState = {
+    workouts: [],
+    templates: [],
+    programs: [],
+    exercises: [],
+    tracker: {
+        calories: {},
+        water: {}
+    },
+    schedule: {
+        days: [],
+        time: '',
+        enabled: false
+    },
+    profile: {
+        name: 'Спортсмен',
+        level: 'beginner',
+        avatar: '',
+        goals: { calories: 2000, water: 2.0 }
+    },
+    settings: {
+        theme: 'dark',
+        interfaceMode: 'standard', // 'simple', 'standard', 'advanced'
+        accentColor: 'indigo'
+    },
+    notifications: [],
+    knowledge: {
+        articles: [],
+        exercisesInfo: {},
+        programsInfo: {}
+    }
+};
+
+// --- Вспомогательные функции ---
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+
+// --- Инициализация приложения ---
 document.addEventListener('DOMContentLoaded', () => {
     console.log('FitApp v2.0 загружено');
     initializeApp();
 });
 
 function initializeApp() {
-    loadSettings();
-    setupEventListeners();
-    renderInitialScreens();
-    updateStats();
+    // Загрузка данных из LocalStorage (заглушка)
+    loadAppState();
+
+    // Установка начальных значений интерфейса
+    updateInterfaceForState();
+
+    // Настройка обработчиков событий
+    setupGlobalEventListeners();
+    setupHomeScreenEvents();
+    setupWorkoutScreenEvents();
+    setupProgressScreenEvents();
+    setupHistoryScreenEvents();
+    setupScheduleScreenEvents();
+    setupTrackerScreenEvents();
+    setupProgramsScreenEvents();
+    setupExercisesScreenEvents();
+    setupKnowledgeScreenEvents();
+    setupCoachScreenEvents();
+    setupInfoScreenEvents();
+    setupModalEvents();
+
+    // Рендер начального состояния
+    renderHomeScreen();
+    renderNotificationsBadge();
 }
 
-function setupEventListeners() {
-    // Навигация
-    document.querySelectorAll('.nav-btn[data-screen]').forEach(btn => {
-        btn.addEventListener('click', () => showScreen(btn.dataset.screen));
-    });
-
-    // Кнопки быстрого действия
-    document.getElementById('start-workout-btn').addEventListener('click', () => showScreen('workout'));
-    document.getElementById('quick-calories-btn').addEventListener('click', () => showModal('add-calories-modal'));
-    document.getElementById('add-exercise-to-workout-btn').addEventListener('click', () => showModal('add-exercise-modal'));
-    document.getElementById('save-workout-btn').addEventListener('click', saveWorkout);
-    document.getElementById('save-template-btn').addEventListener('click', saveCurrentWorkoutAsTemplate);
-
-    // Работа с упражнениями в тренировке (динамические обработчики)
-    document.getElementById('workout-exercises-container').addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-exercise-btn')) {
-            e.target.closest('.exercise-item').remove();
-        }
-        if (e.target.classList.contains('add-set-btn')) {
-            const setsContainer = e.target.previousElementSibling; // .sets-container
-            const setRow = document.createElement('div');
-            setRow.className = 'set-row';
-            setRow.innerHTML = `
-                <input type="number" class="set-input" placeholder="Вес">
-                <input type="number" class="set-input" placeholder="Повт.">
-                <input type="number" class="set-input" placeholder="Отдых (с)">
-            `;
-            setsContainer.appendChild(setRow);
-        }
-    });
-
-    // Работа с шаблонами
-    // (Функция saveCurrentWorkoutAsTemplate уже привязана выше)
-
-    // Трекер
-    document.getElementById('add-calories-btn').addEventListener('click', addCaloriesManually);
-    document.querySelectorAll('.quick-add-cal').forEach(btn => {
-        btn.addEventListener('click', () => addCalories(parseInt(btn.dataset.amount)));
-    });
-    document.getElementById('add-water-btn').addEventListener('click', addWaterManually);
-    document.querySelectorAll('.quick-add-water').forEach(btn => {
-        btn.addEventListener('click', () => addWater(parseFloat(btn.dataset.amount)));
-    });
-
-    // Переключение вкладок трекера
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            const tabId = btn.dataset.tab + '-tab';
-            document.getElementById(tabId).classList.add('active');
-            // После переключения вкладки, обновить отображение
-            updateTrackerDisplay();
-        });
-    });
-
-    // Переключение темы
-    document.getElementById('theme-toggle-btn').addEventListener('click', toggleTheme);
-
-    // Модальные окна
-    document.querySelectorAll('.close-btn').forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-    document.getElementById('modal-overlay').addEventListener('click', (e) => {
-        if (e.target.id === 'modal-overlay') closeModal();
-    });
-
-    // Кнопки "Добавить упражнение" (в модальном окне)
-    document.querySelectorAll('#add-exercise-modal .modal-tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('#add-exercise-modal .modal-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('#add-exercise-modal .modal-tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            const tabId = btn.dataset.tab + '-tab';
-            document.getElementById(tabId).classList.add('active');
-        });
-    });
-    document.getElementById('add-custom-exercise-btn').addEventListener('click', addCustomExerciseToLibrary);
-    // Добавление упражнения из библиотеки (динамический обработчик)
-    document.getElementById('library-tab').addEventListener('click', function(e) {
-        if (e.target.classList.contains('exercise-item-full')) {
-             // Получаем имя упражнения из элемента
-             const exerciseName = e.target.querySelector('strong').textContent;
-             addExerciseToWorkoutForm(exerciseName);
-             closeModal();
-        }
-    });
-
-    // Расписание
-    document.getElementById('save-schedule-btn').addEventListener('click', saveSchedule);
-
-    // Программы
-    document.getElementById('add-program-btn').addEventListener('click', () => showModal('add-program-modal'));
-    document.getElementById('save-program-from-modal-btn').addEventListener('click', saveProgramFromModal);
-
-    // Фильтры (динамические обработчики)
-    setupFilterButtons('.program-filters .filter-btn', '#programs-list', 'program');
-    setupFilterButtons('.exercise-filters .filter-btn', '#exercises-list-full', 'exercise');
-    setupFilterButtons('.filter-buttons .filter-btn', '#history-list', 'history');
-
-    // Прогресс
-    document.querySelectorAll('.period-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateProgressStats(); // Перерисовать статистику за новый период
-        });
-    });
-
-    // Цели трекера
-    document.getElementById('save-calorie-goal-btn').addEventListener('click', saveCalorieGoal);
-    document.getElementById('save-water-goal-btn').addEventListener('click', saveWaterGoal);
-
-    // Настройки темы
-    document.querySelectorAll('.theme-mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.theme-mode-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            // Сохранение выбранного режима в настройках
-            userSettings.themeMode = btn.dataset.mode;
-            saveData('userSettings', userSettings);
-            applyTheme(userSettings.themeMode);
-        });
-    });
-    document.querySelectorAll('.color-option').forEach(option => {
-        option.addEventListener('click', () => {
-            document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
-            option.classList.add('active');
-            const colorName = option.dataset.color;
-            // Сохранение выбранной схемы в настройках
-            userSettings.accentColor = colorName;
-            saveData('userSettings', userSettings);
-            applyAccentColor(colorName);
-        });
-    });
-    document.getElementById('save-theme-settings-btn').addEventListener('click', closeModal);
-
-    // Калькулятор 1ПМ
-    document.getElementById('calculate-1rm-btn').addEventListener('click', calculate1RM);
-    document.querySelectorAll('.open-calculator-btn').forEach(btn => {
-        btn.addEventListener('click', () => showModal('calculator-modal'));
-    });
-
-    // Уведомления
-    document.getElementById('notifications-btn').addEventListener('click', () => showModal('notifications-modal'));
-
-    // Другие кнопки настроек
-    document.getElementById('profile-settings-btn').addEventListener('click', () => showModal('profile-modal'));
-    document.getElementById('theme-settings-btn').addEventListener('click', () => showModal('theme-settings-modal'));
-    // И т.д. для остальных кнопок в разделе "Инфо"
-
-    // Быстрое добавление из модальных окон
-    document.getElementById('add-calories-modal-btn').addEventListener('click', addCaloriesFromModal);
-    document.getElementById('add-water-modal-btn').addEventListener('click', addWaterFromModal);
-
-    // Админ-панель (временно)
-    // document.getElementById('admin-panel-btn').addEventListener('click', () => showModal('admin-panel-modal')); // Предположим, есть такая кнопка
-}
-
-function loadSettings() {
-    const savedTheme = localStorage.getItem('fitapp_theme');
-    if (savedTheme) {
-        document.body.className = savedTheme;
+function loadAppState() {
+    // Заглушка для загрузки из LocalStorage
+    // const storedState = localStorage.getItem('fitapp_state');
+    // if (storedState) {
+    //     appState = JSON.parse(storedState);
+    // }
+    // Для демонстрации, добавим немного данных
+    if (appState.workouts.length === 0) {
+        appState.workouts = [
+            { id: 1, name: 'Тренировка груди', date: '2024-05-20T18:00', exercises: [{name: 'Жим лежа', sets: [{weight: 80, reps: 8}, {weight: 85, reps: 6}]}], notes: 'Хорошая тренировка!' },
+            { id: 2, name: 'Тренировка ног', date: '2024-05-22T19:30', exercises: [{name: 'Приседания', sets: [{weight: 100, reps: 10}, {weight: 110, reps: 8}]}] }
+        ];
     }
-    // Загрузка пользовательских настроек
-    if (userSettings.themeMode) {
-        applyTheme(userSettings.themeMode);
+    if (appState.exercises.length === 0) {
+        appState.exercises = [
+            { id: 1, name: 'Жим лежа', muscleGroup: 'chest', subgroup: 'pectoralis_major', description: 'Базовое упражнение для груди.' },
+            { id: 2, name: 'Подтягивания', muscleGroup: 'back', subgroup: 'latissimus_dorsi', description: 'Упражнение для спины и бицепсов.' }
+        ];
     }
-    if (userSettings.accentColor) {
-        applyAccentColor(userSettings.accentColor);
+    if (appState.programs.length === 0) {
+        appState.programs = [
+            { id: 1, name: 'Базовая 4-дневка', level: 'beginner', type: 'fullbody', description: 'Подходит для новичков.', days: [{title: 'День 1', exercises: [{name: 'Жим лежа', sets: 3, reps: '8-12'}]}, {title: 'День 2', exercises: [{name: 'Приседания', sets: 3, reps: '8-12'}]}] }
+        ];
     }
-    // Загрузка активной программы
-    const savedActiveProgram = localStorage.getItem('fitapp_active_program');
-    if (savedActiveProgram) {
-        activeProgram = JSON.parse(savedActiveProgram);
+    if (appState.knowledge.articles.length === 0) {
+        appState.knowledge.articles = [
+            { id: 1, title: 'Как составить программу', category: 'principles', content: 'Содержимое статьи...' }
+        ];
     }
 }
 
-function applyTheme(mode) {
-    document.body.classList.remove('theme-dark', 'theme-light');
-    if (mode === 'dark' || mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('theme-dark');
-    } else {
-        document.body.classList.add('theme-light');
-    }
+function saveAppState() {
+    // Заглушка для сохранения в LocalStorage
+    // localStorage.setItem('fitapp_state', JSON.stringify(appState));
+    console.log('Состояние приложения сохранено (виртуально).');
+}
+
+function updateInterfaceForState() {
+    // Применить текущую тему
+    document.body.className = `theme-${appState.settings.theme}`;
+    // Применить акцентный цвет
+    applyAccentColor(appState.settings.accentColor);
+    // Обновить бейдж уведомлений
+    renderNotificationsBadge();
 }
 
 function applyAccentColor(colorName) {
@@ -241,73 +132,619 @@ function applyAccentColor(colorName) {
     document.documentElement.style.setProperty('--accent-color', colors[colorName] || colors.indigo);
 }
 
+function renderNotificationsBadge() {
+    const count = appState.notifications.filter(n => !n.read).length;
+    const badge = $('#app-container header .notification-badge');
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle('hidden', count === 0);
+    }
+}
+
+// --- Обработчики событий ---
+function setupGlobalEventListeners() {
+    // Навигация по экранам
+    $$('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const screen = btn.dataset.screen;
+            if (screen) {
+                showScreen(screen);
+            }
+        });
+    });
+
+    // Кнопка смены темы
+    $('#theme-toggle-btn')?.addEventListener('click', toggleTheme);
+}
+
+function setupHomeScreenEvents() {
+    $('#start-workout-btn')?.addEventListener('click', () => showScreen('workout'));
+    $('#quick-calories-btn')?.addEventListener('click', () => showModal('add-calories-modal'));
+}
+
+function setupWorkoutScreenEvents() {
+    $('#add-exercise-to-workout-btn')?.addEventListener('click', () => showModal('add-exercise-modal'));
+    $('#save-workout-btn')?.addEventListener('click', saveCurrentWorkout);
+    $('#save-template-btn')?.addEventListener('click', saveCurrentWorkoutAsTemplate);
+}
+
+function setupProgressScreenEvents() {
+    // Обработчики для кнопок периода
+    $$('.period-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            $$('.period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // Перерисовать прогресс для нового периода
+            renderProgressScreen();
+        });
+    });
+}
+
+function setupHistoryScreenEvents() {
+    // Обработчики для фильтров
+    $$('.filter-btn').forEach(btn => {
+        if (btn.closest('#screen-history')) { // Убедимся, что это фильтр истории
+            btn.addEventListener('click', () => {
+                $$('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentPage = 1; // Сбросить на первую страницу при фильтрации
+                renderHistoryScreen();
+            });
+        }
+    });
+
+    // Обработчики для пагинации
+    $('#prev-page-btn')?.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderHistoryScreen();
+        }
+    });
+    $('#next-page-btn')?.addEventListener('click', () => {
+        const totalItems = getFilteredHistoryItems().length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderHistoryScreen();
+        }
+    });
+}
+
+function setupScheduleScreenEvents() {
+    $('#save-schedule-btn')?.addEventListener('click', saveSchedule);
+}
+
+function setupTrackerScreenEvents() {
+    // Переключение вкладок
+    $$('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            $$('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const tabId = btn.dataset.tab + '-tab';
+            $$('.tab-content').forEach(c => c.classList.remove('active'));
+            $(`#${tabId}`).classList.add('active');
+            // Обновить отображение трекера после смены вкладки
+            renderTrackerScreen();
+        });
+    });
+
+    // Быстрое добавление калорий
+    $$('.quick-add-cal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const amount = parseInt(btn.dataset.amount);
+            addCalories(amount, `Быстрое добавление (+${amount})`);
+        });
+    });
+
+    // Быстрое добавление воды
+    $$('.quick-add-water').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const amount = parseFloat(btn.dataset.amount);
+            addWater(amount);
+        });
+    });
+
+    // Ручное добавление
+    $('#add-calories-btn')?.addEventListener('click', () => {
+        const input = $('#calories-input');
+        const descInput = $('#calories-desc');
+        const amount = parseInt(input.value);
+        if (amount && amount > 0) {
+            addCalories(amount, descInput.value);
+            input.value = '';
+            descInput.value = '';
+        }
+    });
+    $('#add-water-btn')?.addEventListener('click', () => {
+        const input = $('#water-input');
+        const amount = parseFloat(input.value);
+        if (amount && amount > 0) {
+            addWater(amount);
+            input.value = '';
+        }
+    });
+
+    // Сохранение целей
+    $('#save-calorie-goal-btn')?.addEventListener('click', () => {
+        const newGoal = parseInt($('#daily-calorie-goal').value);
+        if (newGoal && newGoal > 0) {
+            appState.profile.goals.calories = newGoal;
+            saveAppState();
+            renderTrackerScreen(); // Обновить отображение
+        }
+    });
+    $('#save-water-goal-btn')?.addEventListener('click', () => {
+        const newGoal = parseFloat($('#daily-water-goal').value);
+        if (newGoal && newGoal > 0) {
+            appState.profile.goals.water = newGoal;
+            saveAppState();
+            renderTrackerScreen(); // Обновить отображение
+        }
+    });
+}
+
+function setupProgramsScreenEvents() {
+    $('#add-program-btn')?.addEventListener('click', () => {
+        // Очистить форму перед открытием
+        $('#program-name-input').value = '';
+        $('#program-description').value = '';
+        $('#program-exercises-json').value = '[{"name": "Пример упражнения", "sets": 3, "reps": "8-12"}]';
+        showModal('add-program-modal');
+    });
+    $('#save-program-from-modal-btn')?.addEventListener('click', saveProgramFromModal);
+}
+
+function setupExercisesScreenEvents() {
+    $('#add-exercise-btn')?.addEventListener('click', () => {
+        // Очистить форму
+        $('#custom-exercise-name').value = '';
+        $('#custom-exercise-description').value = '';
+        showModal('add-exercise-modal');
+        // Показать вкладку "Свое упражнение"
+        $$('#add-exercise-modal .modal-tab-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === 1);
+        });
+        $$('#add-exercise-modal .modal-tab-content').forEach((content, i) => {
+            content.classList.toggle('active', i === 1);
+        });
+    });
+    // Фильтры упражнений
+    $$('.exercise-filters .filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            $$('.exercise-filters .filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderExercisesScreen();
+        });
+    });
+}
+
+function setupKnowledgeScreenEvents() {
+    // События для базы знаний (если есть интерактивные элементы)
+}
+
+function setupCoachScreenEvents() {
+    $$('.open-calculator-btn').forEach(btn => {
+        btn.addEventListener('click', () => showModal('calculator-modal'));
+    });
+}
+
+function setupInfoScreenEvents() {
+    // Профиль
+    $('#profile-settings-btn')?.addEventListener('click', () => {
+        $('#profile-name').value = appState.profile.name;
+        $('#profile-level').value = appState.profile.level;
+        $('#profile-avatar').value = appState.profile.avatar;
+        $('#profile-goals').value = JSON.stringify(appState.profile.goals);
+        showModal('profile-modal');
+    });
+    $('#save-profile-btn')?.addEventListener('click', saveProfile);
+
+    // Тема и цвета
+    $('#theme-settings-btn')?.addEventListener('click', () => {
+        $$('.theme-mode-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === appState.settings.theme);
+        });
+        $$('.color-option').forEach(opt => {
+            opt.classList.toggle('active', opt.dataset.color === appState.settings.accentColor);
+        });
+        showModal('theme-settings-modal');
+    });
+    // Сохранение темы
+    $$('.theme-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            $$('.theme-mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            appState.settings.theme = btn.dataset.mode;
+            updateInterfaceForState();
+        });
+    });
+    $$('.color-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            $$('.color-option').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
+            appState.settings.accentColor = opt.dataset.color;
+            updateInterfaceForState();
+        });
+    });
+    $('#save-theme-settings-btn')?.addEventListener('click', () => {
+        saveAppState();
+        closeModal();
+    });
+
+    // Справочные материалы
+    $('#help-guides-btn')?.addEventListener('click', () => showModal('help-guides-modal'));
+    $('#feedback-btn')?.addEventListener('click', () => showModal('feedback-modal'));
+    $('#contact-dev-btn')?.addEventListener('click', () => showModal('contact-dev-modal'));
+    $('#about-app-btn')?.addEventListener('click', () => showModal('about-app-modal'));
+
+    // Экспорт/Импорт (заглушка)
+    $('#export-word-btn')?.addEventListener('click', () => alert('Функция экспорта в разработке.'));
+    $('#import-word-btn')?.addEventListener('click', () => alert('Функция импорта в разработке.'));
+}
+
+function setupModalEvents() {
+    // Закрытие модальных окон
+    $$('.close-btn').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+    $('#modal-overlay')?.addEventListener('click', (e) => {
+        if (e.target.id === 'modal-overlay') closeModal();
+    });
+
+    // Вкладки в модальных окнах (например, добавление упражнения)
+    $$('#add-exercise-modal .modal-tab-btn').forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+            $$('#add-exercise-modal .modal-tab-btn').forEach(b => b.classList.remove('active'));
+            $$('#add-exercise-modal .modal-tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            $$('#add-exercise-modal .modal-tab-content')[index].classList.add('active');
+        });
+    });
+
+    // Добавление упражнения из библиотеки (в модальном окне)
+    // Это требует рендеринга списка, который зависит от данных.
+    // Пока просто добавим обработчик, который будет вызывать функцию выбора.
+    $('#exercises-library-modal-list')?.parentElement?.addEventListener('click', function(e) {
+        if (e.target.closest('.exercise-item-full')) {
+             const exerciseName = e.target.closest('.exercise-item-full').querySelector('strong').textContent;
+             addExerciseToCurrentWorkoutForm(exerciseName);
+             closeModal();
+        }
+    });
+
+    // Добавление своего упражнения
+    $('#add-custom-exercise-btn')?.addEventListener('click', addCustomExerciseToLibrary);
+
+    // Добавление калорий/воды из модального окна
+    $('#add-calories-modal-btn')?.addEventListener('click', () => {
+        const input = $('#calories-modal-input');
+        const descInput = $('#calories-modal-desc');
+        const timeInput = $('#calories-modal-time');
+        const amount = parseInt(input.value);
+        if (amount && amount > 0) {
+            addCalories(amount, descInput.value, timeInput.value || undefined);
+            input.value = '';
+            descInput.value = '';
+            timeInput.value = '';
+            closeModal();
+        }
+    });
+    $('#add-water-modal-btn')?.addEventListener('click', () => {
+        const input = $('#water-modal-input');
+        const timeInput = $('#water-modal-time');
+        const amount = parseFloat(input.value);
+        if (amount && amount > 0) {
+            addWater(amount, timeInput.value || undefined);
+            input.value = '';
+            timeInput.value = '';
+            closeModal();
+        }
+    });
+
+    // Калькулятор 1ПМ
+    $('#calculate-1rm-btn')?.addEventListener('click', calculateOneRepMax);
+
+    // Отправка обратной связи
+    $('#send-feedback-btn')?.addEventListener('click', () => {
+        const type = $('#feedback-type').value;
+        const message = $('#feedback-message').value;
+        if (message.trim()) {
+            // В реальном приложении здесь был бы API-вызов
+            appState.notifications.push({ id: Date.now(), type: 'feedback', message: `Получено сообщение: ${type}`, read: false, timestamp: new Date().toISOString() });
+            saveAppState();
+            renderNotificationsBadge();
+            alert('Спасибо за обратную связь!');
+            $('#feedback-message').value = '';
+            closeModal();
+        }
+    });
+
+    // Админ-панель (заглушка)
+    // $('#admin-panel-btn')?.addEventListener('click', () => showModal('admin-panel-modal')); // Предположим, есть такая кнопка
+    // Управление упражнениями в админке
+    $('#admin-add-exercise-btn')?.addEventListener('click', addCustomExerciseToLibraryAdmin);
+    // Фильтры в админке
+    $('#admin-exercise-filter')?.addEventListener('change', renderAdminExercisesList);
+    $('#admin-exercise-search')?.addEventListener('input', renderAdminExercisesList);
+    // Добавление статьи
+    $('#admin-add-article-btn')?.addEventListener('click', addArticleToKnowledgeBase);
+}
+
+// --- Логика экранов ---
+
 function showScreen(screenName) {
     // Скрыть текущий экран
-    document.getElementById(`screen-${currentScreen}`).classList.remove('active');
+    $(`#screen-${currentScreen}`).classList.remove('active');
     // Показать новый экран
-    document.getElementById(`screen-${screenName}`).classList.add('active');
+    $(`#screen-${screenName}`).classList.add('active');
     currentScreen = screenName;
 
     // Обновить активную кнопку навигации
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    $$('.nav-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.screen === screenName);
     });
 
-    // Обновить данные на экране, если нужно
+    // Вызвать функцию рендеринга для конкретного экрана
     switch (screenName) {
         case 'home':
-            updateStats();
-            break;
-        case 'history':
-            renderHistory();
-            break;
-        case 'tracker':
-            updateTrackerDisplay();
-            break;
-        case 'schedule':
-            loadSchedule();
-            break;
-        case 'programs':
-            renderPrograms();
-            break;
-        case 'exercises':
-            renderExercisesLibrary();
-            break;
-        case 'knowledge':
-            renderKnowledgeBase();
+            renderHomeScreen();
             break;
         case 'workout':
-            // Сброс формы при входе на экран тренировки
-            resetWorkoutForm();
+            renderWorkoutScreen();
+            break;
+        case 'progress':
+            renderProgressScreen();
+            break;
+        case 'history':
+            currentPage = 1; // Сброс на первую страницу при входе
+            renderHistoryScreen();
+            break;
+        case 'schedule':
+            renderScheduleScreen();
+            break;
+        case 'tracker':
+            renderTrackerScreen();
+            break;
+        case 'programs':
+            renderProgramsScreen();
+            break;
+        case 'exercises':
+            renderExercisesScreen();
+            break;
+        case 'knowledge':
+            renderKnowledgeScreen();
+            break;
+        case 'coach':
+            renderCoachScreen();
+            break;
+        case 'info':
+            renderInfoScreen();
             break;
     }
 }
 
-function renderInitialScreens() {
-    updateTrackerDisplay();
-    loadSchedule();
-    renderPrograms();
-    renderExercisesLibrary();
-    renderKnowledgeBase();
+function renderHomeScreen() {
+    // Обновить приветствие
+    $('.welcome-text').textContent = `👋 Привет, ${appState.profile.name}!`;
+
+    // Обновить статистику
+    $('#stat-total-workouts').textContent = appState.workouts.length;
+    // Заглушка для других статистик
+    $('#stat-streak').textContent = '0'; // Нужно рассчитать
+    $('#stat-total-tonnage').textContent = '0'; // Нужно рассчитать
+    $('#stat-avg-weight').textContent = '0'; // Нужно рассчитать
+
+    // Обновить последние тренировки
+    const recentList = $('#recent-workouts-list');
+    recentList.innerHTML = '';
+    appState.workouts.slice(0, 3).forEach(w => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const date = new Date(w.date).toLocaleDateString('ru-RU');
+        item.innerHTML = `<strong>${w.name}</strong><br><small>${date}</small>`;
+        recentList.appendChild(item);
+    });
 }
 
-// --- Тренировка ---
-function resetWorkoutForm() {
-    document.getElementById('workout-name-input').value = '';
-    document.getElementById('workout-date').value = new Date().toISOString().slice(0, 16); // Текущая дата и время
-    document.getElementById('workout-notes').value = '';
-    document.getElementById('workout-exercises-container').innerHTML = '';
-    // Добавить первое пустое упражнение по умолчанию
-    addExerciseToWorkoutForm();
+function renderWorkoutScreen() {
+    // Сброс формы при рендере экрана тренировки (если не редактируем)
+    // Пока просто очистим контейнер упражнений
+    $('#workout-exercises-container').innerHTML = '';
+    // Добавим одно пустое упражнение по умолчанию
+    addExerciseToCurrentWorkoutForm();
 }
 
-function addExerciseToWorkoutForm(name = '') {
-    const container = document.getElementById('workout-exercises-container');
+function renderProgressScreen() {
+    // Заглушка: просто обновим значения на +/-0%
+    $('#progress-workouts-change').textContent = '+0%';
+    $('#progress-tonnage-change').textContent = '+0%';
+    $('#progress-avg-weight-change').textContent = '+0%';
+}
+
+function getFilteredHistoryItems() {
+    const filter = $('.filter-btn.active')?.dataset.filter || 'all';
+    let filtered = appState.workouts;
+
+    const now = new Date();
+    switch (filter) {
+        case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            filtered = filtered.filter(w => new Date(w.date) >= weekAgo);
+            break;
+        case 'month':
+            const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            filtered = filtered.filter(w => new Date(w.date) >= monthAgo);
+            break;
+        case '3months':
+            const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+            filtered = filtered.filter(w => new Date(w.date) >= threeMonthsAgo);
+            break;
+        // 'all' case does nothing, returns all
+    }
+    return filtered.reverse(); // Новые первыми
+}
+
+function renderHistoryScreen() {
+    const filteredItems = getFilteredHistoryItems();
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageItems = filteredItems.slice(startIndex, endIndex);
+
+    const historyList = $('#history-list');
+    historyList.innerHTML = '';
+    pageItems.forEach(w => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const date = new Date(w.date).toLocaleDateString('ru-RU');
+        item.innerHTML = `<strong>${w.name}</strong><br><small>${date}</small>`;
+        historyList.appendChild(item);
+    });
+
+    // Обновить пагинацию
+    $('#page-info').textContent = `Страница ${currentPage} из ${totalPages || 1}`;
+    $('#prev-page-btn').disabled = currentPage === 1;
+    $('#next-page-btn').disabled = currentPage >= totalPages;
+}
+
+function renderScheduleScreen() {
+    // Загрузить состояние расписания в интерфейс
+    appState.schedule.days.forEach(day => {
+        $(`#day-${day}`).checked = true;
+    });
+    $('#reminder-time').value = appState.schedule.time;
+    $('#enable-notifications').checked = appState.schedule.enabled;
+
+    // Обновить список предстоящих тренировок (заглушка)
+    const upcomingList = $('#upcoming-list');
+    upcomingList.innerHTML = '<li>Тренировка "Базовая 4-дневка - День 1" (Пн)</li><li>Тренировка "Базовая 4-дневка - День 2" (Ср)</li>';
+}
+
+function renderTrackerScreen() {
+    const today = new Date().toISOString().split('T')[0];
+    const currentTab = $('#calories-tab').classList.contains('active') ? 'calories' : 'water';
+
+    if (currentTab === 'calories') {
+        const todayCals = appState.tracker.calories[today] ? appState.tracker.calories[today].reduce((sum, e) => sum + e.amount, 0) : 0;
+        const goalCals = appState.profile.goals.calories;
+        $('#calories-today').textContent = todayCals;
+        $('#calories-goal').textContent = goalCals;
+        const calPercent = Math.min(100, (todayCals / goalCals) * 100);
+        $('#calories-progress-bar .progress-fill').style.width = `${calPercent}%`;
+        $('#calories-progress-text').textContent = `${todayCals} / ${goalCals} ккал`;
+
+    } else { // water
+        const todayWat = appState.tracker.water[today] ? appState.tracker.water[today].reduce((sum, e) => sum + e.amount, 0) : 0.0;
+        const goalWat = appState.profile.goals.water;
+        $('#water-today').textContent = todayWat.toFixed(2);
+        $('#water-goal').textContent = goalWat.toFixed(2);
+        const watPercent = Math.min(100, (todayWat / goalWat) * 100);
+        $('#water-progress-bar .progress-fill').style.width = `${watPercent}%`;
+        $('#water-progress-text').textContent = `${todayWat.toFixed(2)} / ${goalWat.toFixed(2)} л`;
+    }
+}
+
+function renderProgramsScreen() {
+    const list = $('#programs-list');
+    list.innerHTML = '';
+    appState.programs.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'program-item';
+        item.innerHTML = `<strong>${p.name}</strong><br><small>${p.description}</small>`;
+        item.addEventListener('click', () => {
+            // Сделать программу активной (например, сохранить ID)
+            // Это влияет на другие функции, например, на создание тренировки из программы
+            alert(`Программа "${p.name}" выбрана. Теперь можно начать тренировку по ней.`);
+        });
+        list.appendChild(item);
+    });
+}
+
+function renderExercisesScreen() {
+    const filter = $('.exercise-filters .filter-btn.active')?.dataset.filter || 'all';
+    const list = $('#exercises-list-full');
+    list.innerHTML = '';
+    const filteredExercises = filter === 'all' ? appState.exercises : appState.exercises.filter(e => e.muscleGroup === filter);
+    filteredExercises.forEach(e => {
+        const item = document.createElement('div');
+        item.className = 'exercise-item-full';
+        item.innerHTML = `<strong>${e.name}</strong><br><small>Группа: ${e.muscleGroup}, Подгруппа: ${e.subgroup}</small>`;
+        list.appendChild(item);
+    });
+}
+
+function renderKnowledgeScreen() {
+    // Рендер статей
+    const container = $('.knowledge-content');
+    container.innerHTML = '';
+    appState.knowledge.articles.forEach(a => {
+        const articleDiv = document.createElement('div');
+        articleDiv.className = 'article-preview';
+        articleDiv.innerHTML = `<h3>${a.title}</h3><p>${a.content.substring(0, 100)}...</p><button class="btn btn-outline read-more-btn">Читать далее</button>`;
+        container.appendChild(articleDiv);
+    });
+}
+
+function renderCoachScreen() {
+    // Рендер инструментов (в основном статичный HTML, но можно обновлять состояния)
+}
+
+function renderInfoScreen() {
+    // Рендер настроек (в основном статичный HTML, но можно обновлять значения)
+    // Например, обновить описание темы
+    const themeDesc = $('.setting-item:has(#theme-settings-btn) .setting-desc');
+    if (themeDesc) {
+        themeDesc.textContent = `Текущая тема: ${appState.settings.theme.charAt(0).toUpperCase() + appState.settings.theme.slice(1)}. Нажмите для смены цветовой схемы`;
+    }
+}
+
+// --- Логика модальных окон ---
+
+function showModal(modalId) {
+    $('#modal-overlay').classList.remove('hidden');
+    $(`#${modalId}`).classList.remove('hidden');
+    // Для модальных окон с формами, возможно, нужно очистить или заполнить начальными значениями
+    if (modalId === 'add-exercise-modal') {
+        renderExercisesLibraryModalList(); // Заполнить список при открытии
+    }
+    if (modalId === 'admin-panel-modal') {
+        renderAdminExercisesList(); // Заполнить при открытии
+        renderAdminProgramsList();
+        renderAdminArticlesList();
+    }
+}
+
+function closeModal() {
+    $('#modal-overlay').classList.add('hidden');
+    $$('.modal').forEach(m => m.classList.add('hidden'));
+}
+
+function renderExercisesLibraryModalList() {
+    const list = $('#exercises-library-modal-list');
+    list.innerHTML = '';
+    appState.exercises.forEach(e => {
+        const item = document.createElement('div');
+        item.className = 'exercise-item-full';
+        item.innerHTML = `<strong>${e.name}</strong><br><small>Группа: ${e.muscleGroup}</small>`;
+        list.appendChild(item);
+    });
+}
+
+// --- Основная логика приложения ---
+
+function toggleTheme() {
+    appState.settings.theme = appState.settings.theme === 'dark' ? 'light' : 'dark';
+    updateInterfaceForState();
+    saveAppState();
+}
+
+function addExerciseToCurrentWorkoutForm(name = '') {
+    const container = $('#workout-exercises-container');
     const exerciseDiv = document.createElement('div');
     exerciseDiv.className = 'exercise-item';
     exerciseDiv.innerHTML = `
         <div class="exercise-header">
-            <input type="text" class="input-field exercise-name-input" placeholder="Название упражнения" value="${name}" required>
+            <input type="text" class="input-field exercise-name-input" value="${name}" placeholder="Название упражнения" required>
             <button class="btn btn-outline remove-exercise-btn">🗑️</button>
         </div>
         <div class="sets-container">
@@ -320,162 +757,195 @@ function addExerciseToWorkoutForm(name = '') {
         <button class="btn btn-outline add-set-btn">+ Подход</button>
     `;
     container.appendChild(exerciseDiv);
+
+    // Добавить обработчик для удаления
+    exerciseDiv.querySelector('.remove-exercise-btn').addEventListener('click', () => {
+        if (container.children.length > 1) { // Не удалять последнее
+            exerciseDiv.remove();
+        }
+    });
+
+    // Добавить обработчик для добавления подхода
+    exerciseDiv.querySelector('.add-set-btn').addEventListener('click', () => {
+        const setsContainer = exerciseDiv.querySelector('.sets-container');
+        const setRow = document.createElement('div');
+        setRow.className = 'set-row';
+        setRow.innerHTML = `
+            <input type="number" class="set-input" placeholder="Вес">
+            <input type="number" class="set-input" placeholder="Повт.">
+            <input type="number" class="set-input" placeholder="Отдых (с)">
+        `;
+        setsContainer.appendChild(setRow);
+    });
 }
 
-function saveWorkout() {
-    const nameInput = document.getElementById('workout-name-input');
-    if (!nameInput.value.trim()) {
+function saveCurrentWorkout() {
+    const name = $('#workout-name-input').value;
+    const date = $('#workout-date').value || new Date().toISOString();
+    const notes = $('#workout-notes').value;
+
+    if (!name.trim()) {
         alert('Пожалуйста, введите название тренировки.');
         return;
     }
 
-    const newWorkout = {
-        id: 'w_' + Date.now(), // Генерация уникального ID
-        name: nameInput.value,
-        date: document.getElementById('workout-date').value || new Date().toISOString(),
-        exercises: [],
-        notes: document.getElementById('workout-notes').value,
-        templateId: null
-    };
+    const exercises = [];
+    $$('#workout-exercises-container .exercise-item').forEach(item => {
+        const exName = item.querySelector('.exercise-name-input').value;
+        if (!exName.trim()) return; // Пропустить пустые
 
-    document.querySelectorAll('#workout-exercises-container .exercise-item').forEach(item => {
-        const name = item.querySelector('.exercise-name-input').value;
-        if (!name) return; // Пропустить пустые
-
-        const exerciseObj = { name: name, sets: [] };
+        const sets = [];
         item.querySelectorAll('.set-row').forEach(row => {
             const inputs = row.querySelectorAll('.set-input');
-            exerciseObj.sets.push({
+            sets.push({
                 weight: parseFloat(inputs[0].value) || 0,
                 reps: parseInt(inputs[1].value) || 0,
-                rest: parseInt(inputs[2].value) || 0,
-                completed: false // По умолчанию не выполнено
+                rest: parseInt(inputs[2].value) || 0
             });
         });
-        newWorkout.exercises.push(exerciseObj);
+        exercises.push({ name: exName, sets: sets });
     });
 
-    workouts.unshift(newWorkout); // Добавить в начало списка
-    saveData('workouts', workouts);
-    alert('Тренировка сохранена!');
-    // После сохранения, сбросить форму и вернуться на главную
-    resetWorkoutForm();
-    showScreen('home');
-    updateStats(); // Обновить статистику на главной
-}
-
-// --- Шаблоны ---
-function saveCurrentWorkoutAsTemplate() {
-    const name = prompt('Введите название для шаблона:');
-    if (!name || !name.trim()) {
-        alert('Название шаблона не может быть пустым.');
+    if (exercises.length === 0) {
+        alert('Добавьте хотя бы одно упражнение.');
         return;
     }
 
-    // Получаем данные из текущей формы тренировки
-    const nameInput = document.getElementById('workout-name-input');
-    if (!nameInput.value.trim()) {
-        alert('Пожалуйста, сначала создайте тренировку.');
+    const newWorkout = {
+        id: Date.now(), // Простой ID
+        name: name,
+        date: date,
+        exercises: exercises,
+        notes: notes
+    };
+
+    appState.workouts.unshift(newWorkout); // Добавить в начало
+    saveAppState();
+    alert('Тренировка сохранена!');
+    showScreen('home'); // Вернуться на главную
+}
+
+function saveCurrentWorkoutAsTemplate() {
+    // Логика сохранения текущей формы тренировки как шаблона
+    const name = prompt('Введите название для шаблона:');
+    if (!name || !name.trim()) return;
+
+    const exercises = [];
+    $$('#workout-exercises-container .exercise-item').forEach(item => {
+        const exName = item.querySelector('.exercise-name-input').value;
+        if (!exName.trim()) return;
+
+        // Сохраняем только имя упражнения и количество подходов (структуру)
+        const setsCount = item.querySelectorAll('.set-row').length;
+        exercises.push({ name: exName, setsCount: setsCount });
+    });
+
+    if (exercises.length === 0) {
+        alert('Нет упражнений для сохранения как шаблона.');
         return;
     }
 
     const newTemplate = {
-        id: 't_' + Date.now(),
+        id: Date.now(),
         name: name,
-        exercises: []
+        exercises: exercises
     };
 
-    document.querySelectorAll('#workout-exercises-container .exercise-item').forEach(item => {
-        const name = item.querySelector('.exercise-name-input').value;
-        if (!name) return;
-
-        // Сохраняем только упражнение и количество подходов
-        const setsCount = item.querySelectorAll('.set-row').length;
-        newTemplate.exercises.push({
-            name: name,
-            setsCount: setsCount
-        });
-    });
-
-    templates.push(newTemplate);
-    saveData('templates', templates);
-    alert('Шаблон сохранён!');
+    appState.templates.push(newTemplate);
+    saveAppState();
+    alert(`Шаблон "${name}" создан!`);
 }
 
-// --- Программы ---
-function saveProgramFromModal() {
-    const name = document.getElementById('program-name-input').value;
-    const level = document.getElementById('program-level').value;
-    const type = document.getElementById('program-type').value;
-    const duration = parseInt(document.getElementById('program-duration').value);
-    const description = document.getElementById('program-description').value;
-    let exercisesJson = document.getElementById('program-exercises-json').value;
+function addCalories(amount, description = '', time) {
+    const today = new Date().toISOString().split('T')[0];
+    if (!appState.tracker.calories[today]) appState.tracker.calories[today] = [];
+    appState.tracker.calories[today].push({
+        id: Date.now(),
+        amount: amount,
+        description: description,
+        time: time || new Date().toTimeString().substr(0, 5)
+    });
+    saveAppState();
+    // Обновить интерфейс трекера, если он активен
+    if (currentScreen === 'tracker') {
+        renderTrackerScreen();
+    }
+}
 
-    if (!name) {
-        alert('Введите название программы.');
+function addWater(amount, time) {
+    const today = new Date().toISOString().split('T')[0];
+    if (!appState.tracker.water[today]) appState.tracker.water[today] = [];
+    appState.tracker.water[today].push({
+        id: Date.now(),
+        amount: amount,
+        time: time || new Date().toTimeString().substr(0, 5)
+    });
+    saveAppState();
+    // Обновить интерфейс трекера, если он активен
+    if (currentScreen === 'tracker') {
+        renderTrackerScreen();
+    }
+}
+
+function saveSchedule() {
+    const days = [];
+    if ($('#day-mon').checked) days.push('mon');
+    if ($('#day-tue').checked) days.push('tue');
+    if ($('#day-wed').checked) days.push('wed');
+    if ($('#day-thu').checked) days.push('thu');
+    if ($('#day-fri').checked) days.push('fri');
+    if ($('#day-sat').checked) days.push('sat');
+    if ($('#day-sun').checked) days.push('sun');
+
+    appState.schedule = {
+        days: days,
+        time: $('#reminder-time').value,
+        enabled: $('#enable-notifications').checked
+    };
+    saveAppState();
+    alert('Расписание сохранено!');
+}
+
+function saveProgramFromModal() {
+    const name = $('#program-name-input').value;
+    const description = $('#program-description').value;
+    let exercisesJsonStr = $('#program-exercises-json').value;
+
+    if (!name || !exercisesJsonStr) {
+        alert('Заполните обязательные поля: Название и Упражнения (JSON).');
         return;
     }
 
+    let exercisesParsed;
     try {
-        // Попробуем распарсить JSON упражнений
-        const parsedExercises = JSON.parse(exercisesJson);
-        if (!Array.isArray(parsedExercises)) throw new Error('Упражнения должны быть массивом.');
-
-        const newProgram = {
-            id: 'p_' + Date.now(),
-            name: name,
-            level: level,
-            type: type,
-            durationWeeks: duration,
-            description: description,
-            exercises: parsedExercises // Сохраняем структуру как есть
-        };
-
-        programs.push(newProgram);
-        saveData('programs', programs);
-        alert('Программа добавлена!');
-        closeModal();
-        renderPrograms(); // Обновить список
+        exercisesParsed = JSON.parse(exercisesJsonStr);
     } catch (e) {
-        alert('Ошибка в формате JSON упражнений. Проверьте синтаксис.');
-        console.error(e);
+        alert('Ошибка в формате JSON упражнений.');
+        return;
+    }
+
+    const newProgram = {
+        id: Date.now(),
+        name: name,
+        description: description,
+        // В реальном приложении тут будет больше полей (уровень, тип, дни и т.д.)
+        days: [{ title: 'День 1', exercises: exercisesParsed }] // Пример
+    };
+
+    appState.programs.push(newProgram);
+    saveAppState();
+    alert('Программа добавлена!');
+    closeModal();
+    if (currentScreen === 'programs') {
+        renderProgramsScreen();
     }
 }
 
-function renderPrograms() {
-    const container = document.getElementById('programs-list');
-    container.innerHTML = '';
-    programs.forEach(prog => {
-        const div = document.createElement('div');
-        div.className = 'program-item';
-        div.innerHTML = `<strong>${prog.name}</strong><br><small>${prog.description || 'Нет описания'}</small>`;
-        div.addEventListener('click', () => {
-            // Сделать программу активной
-            activeProgram = prog;
-            localStorage.setItem('fitapp_active_program', JSON.stringify(activeProgram));
-            alert(`Программа "${prog.name}" активирована!`);
-        });
-        container.appendChild(div);
-    });
-}
-
-// --- Упражнения ---
-function renderExercisesLibrary() {
-    const container = document.getElementById('exercises-list-full');
-    container.innerHTML = '';
-    exercisesLibrary.forEach(ex => {
-        const div = document.createElement('div');
-        div.className = 'exercise-item-full';
-        div.innerHTML = `<strong>${ex.name}</strong><br><small>Группа: ${ex.muscleGroup}, Подгруппа: ${ex.subgroup}</small>`;
-        container.appendChild(div);
-    });
-}
-
 function addCustomExerciseToLibrary() {
-    const name = document.getElementById('custom-exercise-name').value;
-    const group = document.getElementById('custom-exercise-muscle-group').value;
-    const subgroup = document.getElementById('custom-exercise-subgroup').value;
-    const desc = document.getElementById('custom-exercise-description').value;
+    const name = $('#custom-exercise-name').value;
+    const group = $('#custom-exercise-muscle-group').value;
+    const subgroup = $('#custom-exercise-subgroup').value;
+    const desc = $('#custom-exercise-description').value;
 
     if (!name) {
         alert('Введите название упражнения.');
@@ -483,322 +953,225 @@ function addCustomExerciseToLibrary() {
     }
 
     const newExercise = {
-        id: 'e_' + Date.now(),
+        id: Date.now(),
         name: name,
         muscleGroup: group,
         subgroup: subgroup,
-        description: desc,
-        image: '' // Пока без изображения
+        description: desc
     };
 
-    exercisesLibrary.push(newExercise);
-    saveData('exercisesLibrary', exercisesLibrary);
+    appState.exercises.push(newExercise);
+    saveAppState();
     alert('Упражнение добавлено в библиотеку!');
     closeModal();
-    renderExercisesLibrary(); // Обновить список
-}
-
-// --- Трекер ---
-function addCalories(amount, description = '', time = null) {
-    const today = new Date().toISOString().split('T')[0];
-    if (!trackerData.calories[today]) {
-        trackerData.calories[today] = [];
+    if (currentScreen === 'exercises') {
+        renderExercisesScreen();
     }
-    trackerData.calories[today].push({
-        id: 'c_' + Date.now(),
-        amount: amount,
-        description: description,
-        time: time || new Date().toTimeString().substring(0, 5)
-    });
-    saveData('trackerData', trackerData);
-    updateTrackerDisplay();
+    // Также обновить список в модальном окне
+    renderExercisesLibraryModalList();
 }
 
-function addCaloriesManually() {
-    const input = document.getElementById('calories-input');
-    const descInput = document.getElementById('calories-desc');
-    const amount = parseInt(input.value);
-    if (isNaN(amount) || amount <= 0) {
-        alert('Введите корректное количество калорий.');
+function addCustomExerciseToLibraryAdmin() {
+    // Та же логика, что и addCustomExerciseToLibrary, но для админ-панели
+    // Использует поля из #admin-exercises-tab
+    const name = $('#admin-exercise-name').value;
+    const group = $('#admin-exercise-muscle-group').value;
+    const subgroup = $('#admin-exercise-subgroup').value;
+    const desc = $('#admin-exercise-description').value;
+    // const imageUrl = $('#admin-exercise-image-url').value; // Не используется в основной библиотеке
+
+    if (!name) {
+        alert('Введите название упражнения.');
         return;
     }
-    addCalories(amount, descInput.value);
-    input.value = '';
-    descInput.value = '';
-}
 
-function addCaloriesFromModal() {
-    const input = document.getElementById('calories-modal-input');
-    const descInput = document.getElementById('calories-modal-desc');
-    const timeInput = document.getElementById('calories-modal-time');
-    const amount = parseInt(input.value);
-    if (isNaN(amount) || amount <= 0) {
-        alert('Введите корректное количество калорий.');
-        return;
-    }
-    addCalories(amount, descInput.value, timeInput.value || null);
-    input.value = '';
-    descInput.value = '';
-    timeInput.value = '';
-    closeModal();
-}
-
-function addWater(amount, time = null) {
-    const today = new Date().toISOString().split('T')[0];
-    if (!trackerData.water[today]) {
-        trackerData.water[today] = [];
-    }
-    trackerData.water[today].push({
-        id: 'w_' + Date.now(),
-        amount: amount,
-        time: time || new Date().toTimeString().substring(0, 5)
-    });
-    saveData('trackerData', trackerData);
-    updateTrackerDisplay();
-}
-
-function addWaterManually() {
-    const input = document.getElementById('water-input');
-    const amount = parseFloat(input.value);
-    if (isNaN(amount) || amount <= 0) {
-        alert('Введите корректное количество воды.');
-        return;
-    }
-    addWater(amount);
-    input.value = '';
-}
-
-function addWaterFromModal() {
-    const input = document.getElementById('water-modal-input');
-    const timeInput = document.getElementById('water-modal-time');
-    const amount = parseFloat(input.value);
-    if (isNaN(amount) || amount <= 0) {
-        alert('Введите корректное количество воды.');
-        return;
-    }
-    addWater(amount, timeInput.value || null);
-    input.value = '';
-    timeInput.value = '';
-    closeModal();
-}
-
-function updateTrackerDisplay() {
-    const today = new Date().toISOString().split('T')[0];
-
-    // Калории
-    const caloriesToday = trackerData.calories[today] ? trackerData.calories[today].reduce((sum, entry) => sum + entry.amount, 0) : 0;
-    document.getElementById('calories-today').textContent = caloriesToday;
-    const calorieGoal = userGoals.calories;
-    document.getElementById('calories-goal').textContent = calorieGoal;
-    const caloriePercentage = Math.min(100, (caloriesToday / calorieGoal) * 100);
-    document.getElementById('calories-progress-bar').querySelector('.progress-fill').style.width = caloriePercentage + '%';
-    document.getElementById('calories-progress-text').textContent = `${caloriesToday} / ${calorieGoal} ккал`;
-
-    // Вода
-    const waterToday = trackerData.water[today] ? trackerData.water[today].reduce((sum, entry) => sum + entry.amount, 0) : 0.0;
-    document.getElementById('water-today').textContent = waterToday.toFixed(2);
-    const waterGoal = userGoals.water;
-    document.getElementById('water-goal').textContent = waterGoal.toFixed(2);
-    const waterPercentage = Math.min(100, (waterToday / waterGoal) * 100);
-    document.getElementById('water-progress-bar').querySelector('.progress-fill').style.width = waterPercentage + '%';
-    document.getElementById('water-progress-text').textContent = `${waterToday.toFixed(2)} / ${waterGoal.toFixed(2)} л`;
-}
-
-function saveCalorieGoal() {
-    const newGoal = parseInt(document.getElementById('daily-calorie-goal').value);
-    if (!isNaN(newGoal) && newGoal > 0) {
-        userGoals.calories = newGoal;
-        saveData('userGoals', userGoals);
-        updateTrackerDisplay();
-        alert('Цель по калориям обновлена!');
-    } else {
-        alert('Введите корректное значение цели.');
-    }
-}
-
-function saveWaterGoal() {
-    const newGoal = parseFloat(document.getElementById('daily-water-goal').value);
-    if (!isNaN(newGoal) && newGoal > 0) {
-        userGoals.water = newGoal;
-        saveData('userGoals', userGoals);
-        updateTrackerDisplay();
-        alert('Цель по воде обновлена!');
-    } else {
-        alert('Введите корректное значение цели.');
-    }
-}
-
-// --- История ---
-function renderHistory() {
-    const container = document.getElementById('history-list');
-    container.innerHTML = '';
-    workouts.forEach(workout => { // Показать все
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        const date = new Date(workout.date).toLocaleDateString('ru-RU');
-        div.innerHTML = `<strong>${workout.name}</strong><br><small>${date}</small>`;
-        container.appendChild(div);
-    });
-}
-
-// --- Расписание ---
-function loadSchedule() {
-    document.getElementById('day-mon').checked = schedule.days.includes('mon');
-    document.getElementById('day-tue').checked = schedule.days.includes('tue');
-    document.getElementById('day-wed').checked = schedule.days.includes('wed');
-    document.getElementById('day-thu').checked = schedule.days.includes('thu');
-    document.getElementById('day-fri').checked = schedule.days.includes('fri');
-    document.getElementById('day-sat').checked = schedule.days.includes('sat');
-    document.getElementById('day-sun').checked = schedule.days.includes('sun');
-    document.getElementById('reminder-time').value = schedule.reminderTime;
-    document.getElementById('enable-notifications').checked = schedule.enabled;
-}
-
-function saveSchedule() {
-    const selectedDays = [];
-    if (document.getElementById('day-mon').checked) selectedDays.push('mon');
-    if (document.getElementById('day-tue').checked) selectedDays.push('tue');
-    if (document.getElementById('day-wed').checked) selectedDays.push('wed');
-    if (document.getElementById('day-thu').checked) selectedDays.push('thu');
-    if (document.getElementById('day-fri').checked) selectedDays.push('fri');
-    if (document.getElementById('day-sat').checked) selectedDays.push('sat');
-    if (document.getElementById('day-sun').checked) selectedDays.push('sun');
-
-    schedule = {
-        days: selectedDays,
-        reminderTime: document.getElementById('reminder-time').value,
-        enabled: document.getElementById('enable-notifications').checked
+    const newExercise = {
+        id: Date.now(),
+        name: name,
+        muscleGroup: group,
+        subgroup: subgroup,
+        description: desc
     };
 
-    saveData('schedule', schedule);
-    alert('Расписание сохранено!');
+    appState.exercises.push(newExercise);
+    saveAppState();
+    alert('Упражнение добавлено в библиотеку (админка)!');
+    // Закрытие модального окна не нужно, так как это внутри админ-панели
+    renderAdminExercisesList(); // Обновить список в админке
+    renderExercisesScreen(); // Обновить основной список
+    renderExercisesLibraryModalList(); // Обновить список в модальном окне добавления
 }
 
-// --- Прогресс ---
-function updateProgressStats() {
-    // Заглушка: просто обновляем на +/-0%
-    document.getElementById('progress-tonnage-change').textContent = '+0%';
-    document.getElementById('progress-avg-weight-change').textContent = '+0%';
-    document.getElementById('progress-workouts-change').textContent = '+0%';
-}
+function renderAdminExercisesList() {
+    // Используется для админ-панели
+    const list = $('#admin-exercises-list');
+    if (!list) return;
+    list.innerHTML = '';
 
-// --- Статистика на главной ---
-function updateStats() {
-    document.getElementById('stat-total-workouts').textContent = workouts.length;
-    // Заглушка для других статистик
-    document.getElementById('stat-streak').textContent = '0';
-    document.getElementById('stat-total-tonnage').textContent = '0';
-    document.getElementById('stat-avg-weight').textContent = '0';
+    const searchTerm = ($('#admin-exercise-search').value || '').toLowerCase();
+    const filter = $('#admin-exercise-filter').value;
 
-    // Обновить последние тренировки
-    const recentContainer = document.getElementById('recent-workouts-list');
-    recentContainer.innerHTML = '';
-    workouts.slice(0, 3).forEach(workout => {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        const date = new Date(workout.date).toLocaleDateString('ru-RU');
-        div.innerHTML = `<strong>${workout.name}</strong><br><small>${date}</small>`;
-        recentContainer.appendChild(div);
+    const filteredExercises = appState.exercises.filter(e => {
+        const matchesSearch = e.name.toLowerCase().includes(searchTerm);
+        const matchesFilter = filter === 'all' || e.muscleGroup === filter;
+        return matchesSearch && matchesFilter;
+    });
+
+    filteredExercises.forEach(e => {
+        const item = document.createElement('div');
+        item.className = 'admin-exercise-item';
+        item.innerHTML = `
+            <div>
+                <strong>${e.name}</strong><br>
+                <small>Группа: ${e.muscleGroup}, Подгруппа: ${e.subgroup}</small>
+            </div>
+            <div>
+                <button class="btn btn-outline btn-sm edit-ex-btn">✏️</button>
+                <button class="btn btn-outline btn-sm delete-ex-btn" data-id="${e.id}">🗑️</button>
+            </div>
+        `;
+        // Обработчик удаления
+        item.querySelector('.delete-ex-btn').addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            if (confirm('Удалить упражнение?')) {
+                appState.exercises = appState.exercises.filter(ex => ex.id !== id);
+                saveAppState();
+                renderAdminExercisesList();
+                renderExercisesScreen();
+                renderExercisesLibraryModalList();
+            }
+        });
+        list.appendChild(item);
     });
 }
 
-// --- База знаний ---
-function renderKnowledgeBase() {
-    const container = document.getElementById('knowledge-content');
-    container.innerHTML = '';
-    knowledgeArticles.forEach(article => {
-        const articleDiv = document.createElement('div');
-        articleDiv.className = 'article-preview';
-        articleDiv.innerHTML = `<h3>${article.title}</h3><p>${article.content.substring(0, 100)}...</p><button class="btn btn-outline read-more-btn">Читать далее</button>`;
-        container.appendChild(articleDiv);
+function renderAdminProgramsList() {
+    const list = $('#admin-programs-list');
+    if (!list) return;
+    list.innerHTML = '';
+    appState.programs.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'admin-program-item';
+        item.innerHTML = `
+            <div>
+                <strong>${p.name}</strong><br>
+                <small>${p.description}</small>
+            </div>
+            <div>
+                <button class="btn btn-outline btn-sm delete-prog-btn" data-id="${p.id}">🗑️</button>
+            </div>
+        `;
+        item.querySelector('.delete-prog-btn').addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            if (confirm('Удалить программу?')) {
+                appState.programs = appState.programs.filter(pr => pr.id !== id);
+                saveAppState();
+                renderAdminProgramsList();
+                renderProgramsScreen();
+            }
+        });
+        list.appendChild(item);
     });
 }
 
-// --- Модальные окна ---
-function showModal(modalId) {
-    document.getElementById('modal-overlay').classList.remove('hidden');
-    document.getElementById(modalId).classList.remove('hidden');
+function renderAdminArticlesList() {
+    const list = $('#admin-articles-list');
+    if (!list) return;
+    list.innerHTML = '';
+    appState.knowledge.articles.forEach(a => {
+        const item = document.createElement('div');
+        item.className = 'admin-article-item';
+        item.innerHTML = `
+            <div>
+                <strong>${a.title}</strong><br>
+                <small>Категория: ${a.category}</small>
+            </div>
+            <div>
+                <button class="btn btn-outline btn-sm delete-art-btn" data-id="${a.id}">🗑️</button>
+            </div>
+        `;
+        item.querySelector('.delete-art-btn').addEventListener('click', (e) => {
+            const id = parseInt(e.target.dataset.id);
+            if (confirm('Удалить статью?')) {
+                appState.knowledge.articles = appState.knowledge.articles.filter(ar => ar.id !== id);
+                saveAppState();
+                renderAdminArticlesList();
+                renderKnowledgeScreen();
+            }
+        });
+        list.appendChild(item);
+    });
 }
 
-function closeModal() {
-    document.getElementById('modal-overlay').classList.add('hidden');
-    document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
-}
+function addArticleToKnowledgeBase() {
+    const title = $('#admin-article-title').value;
+    const category = $('#admin-article-category').value;
+    const content = $('#admin-article-content').value;
+    const tagsString = $('#admin-article-tags').value;
 
-// --- Калькулятор 1ПМ ---
-function calculate1RM() {
-    const weight = parseFloat(document.getElementById('calc-weight').value);
-    const reps = parseInt(document.getElementById('calc-reps').value);
-
-    if (isNaN(weight) || isNaN(reps) || weight <= 0 || reps <= 0) {
-        document.getElementById('result-1rm').textContent = 'Ошибка ввода.';
+    if (!title || !category || !content) {
+        alert('Заполните обязательные поля: Заголовок, Категория, Содержимое.');
         return;
     }
 
-    // Формула Бжицкого: 1RM = w * (1 + r / 30)
+    const newArticle = {
+        id: Date.now(),
+        title: title,
+        category: category,
+        content: content,
+        tags: tagsString.split(',').map(tag => tag.trim()).filter(tag => tag)
+    };
+
+    appState.knowledge.articles.push(newArticle);
+    saveAppState();
+    alert('Статья добавлена!');
+    // Очистить форму
+    $('#admin-article-title').value = '';
+    $('#admin-article-content').value = '';
+    $('#admin-article-tags').value = '';
+    renderAdminArticlesList(); // Обновить список в админке
+    renderKnowledgeScreen(); // Обновить основной экран
+}
+
+function saveProfile() {
+    appState.profile.name = $('#profile-name').value;
+    appState.profile.level = $('#profile-level').value;
+    appState.profile.avatar = $('#profile-avatar').value;
+    try {
+        // Попробуем обновить цели из JSON строки
+        const newGoals = JSON.parse($('#profile-goals').value);
+        if (typeof newGoals.calories === 'number' && typeof newGoals.water === 'number') {
+            appState.profile.goals = newGoals;
+        }
+    } catch (e) {
+        alert('Ошибка в формате JSON целей. Цели не изменены.');
+        return;
+    }
+    saveAppState();
+    alert('Профиль сохранён!');
+    closeModal();
+    // Обновить интерфейс, зависящий от профиля
+    if (currentScreen === 'home') {
+        renderHomeScreen();
+    }
+    if (currentScreen === 'tracker') {
+        renderTrackerScreen();
+    }
+}
+
+function calculateOneRepMax() {
+    const weight = parseFloat($('#calc-weight').value);
+    const reps = parseInt($('#calc-reps').value);
+
+    if (isNaN(weight) || isNaN(reps) || weight <= 0 || reps <= 0) {
+        $('#result-1rm').textContent = 'Ошибка ввода.';
+        return;
+    }
+
+    // Формула Epley: 1RM = w * (1 + r / 30)
     const oneRepMax = weight * (1 + reps / 30);
-    document.getElementById('result-1rm').textContent = `Результат: ${oneRepMax.toFixed(2)} кг`;
+    $('#result-1rm').textContent = `1ПМ ≈ ${oneRepMax.toFixed(2)} кг`;
 }
 
-// --- Тема ---
-function toggleTheme() {
-    document.body.classList.toggle('theme-dark');
-    document.body.classList.toggle('theme-light');
-    const newTheme = document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light';
-    localStorage.setItem('fitapp_theme', newTheme);
-}
-
-// --- Утилиты для LocalStorage ---
-function saveData(key, data) {
-    try {
-        localStorage.setItem('fitapp_' + key, JSON.stringify(data));
-    } catch (e) {
-        console.error('Ошибка сохранения в LocalStorage:', e);
-        alert('Не удалось сохранить данные. Возможно, закончилось место.');
-    }
-}
-
-function loadData(key) {
-    try {
-        const item = localStorage.getItem('fitapp_' + key);
-        return item ? JSON.parse(item) : null;
-    } catch (e) {
-        console.error('Ошибка загрузки из LocalStorage:', e);
-        return null;
-    }
-}
-
-// --- Утилиты для фильтров ---
-function setupFilterButtons(selector, listSelector, itemType) {
-    // Используем делегирование событий для динамических элементов
-    document.querySelector(listSelector)?.parentElement?.addEventListener('click', function(e) {
-        if (e.target.matches(`${selector}`)) {
-            document.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            // Здесь должна быть логика фильтрации списка
-            // Пока заглушка
-            console.log(`Фильтр ${itemType} изменён на:`, e.target.dataset.filter);
-            // Пример фильтрации (нужно адаптировать под каждый тип)
-            // filterList(listSelector, itemType, e.target.dataset.filter);
-        }
-    });
-}
-
-// --- Вспомогательные функции для фильтрации (заглушка) ---
-/*
-function filterList(listSelector, itemType, filterValue) {
-    const items = document.querySelectorAll(`${listSelector} .${itemType}-item`);
-    items.forEach(item => {
-        // Пример логики для упражнений
-        if (itemType === 'exercise') {
-            const muscleGroup = item.dataset.muscleGroup;
-            if (filterValue === 'all' || muscleGroup === filterValue) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        }
-        // Добавить логику для программ, истории и т.д.
-    });
-}
-*/
+// --- Завершение ---
+console.log("FitApp v2.0 Script Loaded.");
