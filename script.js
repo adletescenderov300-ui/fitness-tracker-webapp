@@ -1,6 +1,6 @@
 // --- Глобальные переменные ---
 let currentScreen = 'home';
-let currentWorkout = null; // Активная тренировка
+let currentWorkout = null; // Активная тренировка (временно, для UI)
 let isWorkoutActive = false; // Флаг активной тренировки
 let activeProgram = null; // Активная программа
 let templates = loadData('templates') || [];
@@ -9,25 +9,25 @@ let programs = loadData('programs') || [];
 let schedule = loadData('schedule') || { days: [], reminderTime: '', enabled: false };
 let trackerData = loadData('trackerData') || { calories: {}, water: {} }; // Данные по дням
 let userGoals = loadData('userGoals') || { calories: 2000, water: 2.0 }; // Цели
+let userSettings = loadData('userSettings') || { interfaceMode: 'standard' }; // Доп. настройки
 let exercisesLibrary = loadData('exercisesLibrary') || [
-    { id: 'bench_press', name: 'Жим лежа', muscleGroup: 'chest', description: '...', image: '' },
-    { id: 'squat', name: 'Приседания', muscleGroup: 'legs', description: '...', image: '' },
-    { id: 'deadlift', name: 'Становая тяга', muscleGroup: 'back', description: '...', image: '' },
-    { id: 'pull_up', name: 'Подтягивания', muscleGroup: 'back', description: '...', image: '' },
-    { id: 'push_up', name: 'Отжимания', muscleGroup: 'chest', description: '...', image: '' },
-    { id: 'plank', name: 'Планка', muscleGroup: 'core', description: '...', image: '' },
+    { id: 'bench_press', name: 'Жим лежа', muscleGroup: 'chest', subgroup: 'pectoralis_major', description: 'Базовое упражнение для развития грудных мышц.', image: '' },
+    { id: 'squat', name: 'Приседания', muscleGroup: 'legs', subgroup: 'quadriceps', description: 'Классическое упражнение для ног и ягодиц.', image: '' },
+    { id: 'deadlift', name: 'Становая тяга', muscleGroup: 'back', subgroup: 'erector_spinae', description: 'Многосуставное упражнение для спины, ног и ягодиц.', image: '' },
+    { id: 'pull_up', name: 'Подтягивания', muscleGroup: 'back', subgroup: 'latissimus_dorsi', description: 'Упражнение для развития спины и бицепсов.', image: '' },
+    { id: 'push_up', name: 'Отжимания', muscleGroup: 'chest', subgroup: 'pectorals', description: 'Упражнение для груди, плеч и трицепсов без снаряжения.', image: '' },
+    { id: 'plank', name: 'Планка', muscleGroup: 'core', subgroup: 'rectus_abdominis', description: 'Изометрическое упражнение для пресса.', image: '' },
+    { id: 'barbell_row', name: 'Тяга штанги в наклоне', muscleGroup: 'back', subgroup: 'rhomboids', description: 'Упражнение для средней части спины.', image: '' },
+    { id: 'overhead_press', name: 'Жим стоя', muscleGroup: 'shoulders', subgroup: 'deltoids', description: 'Упражнение для развития плечевого пояса.', image: '' },
+    { id: 'bicep_curl', name: 'Сгибание рук со штангой', muscleGroup: 'arms', subgroup: 'biceps', description: 'Изолирующее упражнение для бицепсов.', image: '' },
+    { id: 'tricep_extension', name: 'Французский жим', muscleGroup: 'arms', subgroup: 'triceps', description: 'Упражнение для развития трицепсов.', image: '' },
 ];
-// Пример структуры тренировки
-// let exampleWorkout = {
-//     id: 'w1',
-//     name: 'Тренировка груди',
-//     date: new Date().toISOString(),
-//     exercises: [
-//         { name: 'Жим лежа', sets: [{ weight: 0, reps: 0, completed: false }, { weight: 0, reps: 0, completed: false }] }
-//     ],
-//     notes: '...',
-//     templateId: null // Если была создана из шаблона
-// };
+let knowledgeArticles = loadData('knowledgeArticles') || [
+    { id: 'article1', title: 'Как составить эффективную программу тренировок?', category: 'principles', tags: ['программа', 'мышцы'], content: 'Содержимое статьи...' },
+    { id: 'article2', title: 'Правила питания для набора мышечной массы', category: 'nutrition', tags: ['питание', 'масса'], content: 'Содержимое статьи...' },
+    { id: 'article3', title: 'Техника выполнения жима лежа', category: 'technique', tags: ['техника', 'грудь'], content: 'Содержимое статьи...' },
+    { id: 'article4', title: 'Как избежать травм в зале', category: 'safety', tags: ['безопасность', 'травмы'], content: 'Содержимое статьи...' },
+];
 
 // --- Инициализация при загрузке ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -50,18 +50,31 @@ function setupEventListeners() {
 
     // Кнопки быстрого действия
     document.getElementById('start-workout-btn').addEventListener('click', () => showScreen('workout'));
-    document.getElementById('finish-workout-btn').addEventListener('click', finishWorkout);
-    document.getElementById('create-custom-workout-btn').addEventListener('click', startCustomWorkout);
-    document.getElementById('use-template-btn').addEventListener('click', showTemplatesForSelection);
-    document.getElementById('use-program-day-btn').addEventListener('click', showProgramDaysForSelection);
-
-    // Работа с упражнениями в тренировке
-    document.getElementById('add-exercise-to-workout-btn').addEventListener('click', addExerciseToWorkoutForm);
+    document.getElementById('quick-calories-btn').addEventListener('click', () => showModal('add-calories-modal'));
+    document.getElementById('add-exercise-to-workout-btn').addEventListener('click', () => showModal('add-exercise-modal'));
     document.getElementById('save-workout-btn').addEventListener('click', saveWorkout);
+    document.getElementById('save-template-btn').addEventListener('click', saveCurrentWorkoutAsTemplate);
+
+    // Работа с упражнениями в тренировке (динамические обработчики)
+    document.getElementById('workout-exercises-container').addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-exercise-btn')) {
+            e.target.closest('.exercise-item').remove();
+        }
+        if (e.target.classList.contains('add-set-btn')) {
+            const setsContainer = e.target.previousElementSibling; // .sets-container
+            const setRow = document.createElement('div');
+            setRow.className = 'set-row';
+            setRow.innerHTML = `
+                <input type="number" class="set-input" placeholder="Вес">
+                <input type="number" class="set-input" placeholder="Повт.">
+                <input type="number" class="set-input" placeholder="Отдых (с)">
+            `;
+            setsContainer.appendChild(setRow);
+        }
+    });
 
     // Работа с шаблонами
-    document.getElementById('save-as-template-btn').addEventListener('click', saveCurrentWorkoutAsTemplate);
-    document.getElementById('confirm-finish-workout-btn').addEventListener('click', closeFinishWorkoutForm);
+    // (Функция saveCurrentWorkoutAsTemplate уже привязана выше)
 
     // Трекер
     document.getElementById('add-calories-btn').addEventListener('click', addCaloriesManually);
@@ -81,6 +94,8 @@ function setupEventListeners() {
             btn.classList.add('active');
             const tabId = btn.dataset.tab + '-tab';
             document.getElementById(tabId).classList.add('active');
+            // После переключения вкладки, обновить отображение
+            updateTrackerDisplay();
         });
     });
 
@@ -95,8 +110,8 @@ function setupEventListeners() {
         if (e.target.id === 'modal-overlay') closeModal();
     });
 
-    // Кнопки "Добавить упражнение"
-    document.getElementById('add-exercise-modal').querySelectorAll('.modal-tab-btn').forEach(btn => {
+    // Кнопки "Добавить упражнение" (в модальном окне)
+    document.querySelectorAll('#add-exercise-modal .modal-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('#add-exercise-modal .modal-tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#add-exercise-modal .modal-tab-content').forEach(c => c.classList.remove('active'));
@@ -106,16 +121,26 @@ function setupEventListeners() {
         });
     });
     document.getElementById('add-custom-exercise-btn').addEventListener('click', addCustomExerciseToLibrary);
+    // Добавление упражнения из библиотеки (динамический обработчик)
+    document.getElementById('library-tab').addEventListener('click', function(e) {
+        if (e.target.classList.contains('exercise-item-full')) {
+             // Получаем имя упражнения из элемента
+             const exerciseName = e.target.querySelector('strong').textContent;
+             addExerciseToWorkoutForm(exerciseName);
+             closeModal();
+        }
+    });
 
     // Расписание
     document.getElementById('save-schedule-btn').addEventListener('click', saveSchedule);
 
     // Программы
     document.getElementById('add-program-btn').addEventListener('click', () => showModal('add-program-modal'));
+    document.getElementById('save-program-from-modal-btn').addEventListener('click', saveProgramFromModal);
 
-    // Фильтры
-    setupFilterButtons('.filter-btn', '.exercises-list-full', 'exercise');
+    // Фильтры (динамические обработчики)
     setupFilterButtons('.program-filters .filter-btn', '#programs-list', 'program');
+    setupFilterButtons('.exercise-filters .filter-btn', '#exercises-list-full', 'exercise');
     setupFilterButtons('.filter-buttons .filter-btn', '#history-list', 'history');
 
     // Прогресс
@@ -126,6 +151,55 @@ function setupEventListeners() {
             updateProgressStats(); // Перерисовать статистику за новый период
         });
     });
+
+    // Цели трекера
+    document.getElementById('save-calorie-goal-btn').addEventListener('click', saveCalorieGoal);
+    document.getElementById('save-water-goal-btn').addEventListener('click', saveWaterGoal);
+
+    // Настройки темы
+    document.querySelectorAll('.theme-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.theme-mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // Сохранение выбранного режима в настройках
+            userSettings.themeMode = btn.dataset.mode;
+            saveData('userSettings', userSettings);
+            applyTheme(userSettings.themeMode);
+        });
+    });
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            const colorName = option.dataset.color;
+            // Сохранение выбранной схемы в настройках
+            userSettings.accentColor = colorName;
+            saveData('userSettings', userSettings);
+            applyAccentColor(colorName);
+        });
+    });
+    document.getElementById('save-theme-settings-btn').addEventListener('click', closeModal);
+
+    // Калькулятор 1ПМ
+    document.getElementById('calculate-1rm-btn').addEventListener('click', calculate1RM);
+    document.querySelectorAll('.open-calculator-btn').forEach(btn => {
+        btn.addEventListener('click', () => showModal('calculator-modal'));
+    });
+
+    // Уведомления
+    document.getElementById('notifications-btn').addEventListener('click', () => showModal('notifications-modal'));
+
+    // Другие кнопки настроек
+    document.getElementById('profile-settings-btn').addEventListener('click', () => showModal('profile-modal'));
+    document.getElementById('theme-settings-btn').addEventListener('click', () => showModal('theme-settings-modal'));
+    // И т.д. для остальных кнопок в разделе "Инфо"
+
+    // Быстрое добавление из модальных окон
+    document.getElementById('add-calories-modal-btn').addEventListener('click', addCaloriesFromModal);
+    document.getElementById('add-water-modal-btn').addEventListener('click', addWaterFromModal);
+
+    // Админ-панель (временно)
+    // document.getElementById('admin-panel-btn').addEventListener('click', () => showModal('admin-panel-modal')); // Предположим, есть такая кнопка
 }
 
 function loadSettings() {
@@ -133,6 +207,38 @@ function loadSettings() {
     if (savedTheme) {
         document.body.className = savedTheme;
     }
+    // Загрузка пользовательских настроек
+    if (userSettings.themeMode) {
+        applyTheme(userSettings.themeMode);
+    }
+    if (userSettings.accentColor) {
+        applyAccentColor(userSettings.accentColor);
+    }
+    // Загрузка активной программы
+    const savedActiveProgram = localStorage.getItem('fitapp_active_program');
+    if (savedActiveProgram) {
+        activeProgram = JSON.parse(savedActiveProgram);
+    }
+}
+
+function applyTheme(mode) {
+    document.body.classList.remove('theme-dark', 'theme-light');
+    if (mode === 'dark' || mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('theme-dark');
+    } else {
+        document.body.classList.add('theme-light');
+    }
+}
+
+function applyAccentColor(colorName) {
+    const colors = {
+        indigo: '#4F46E5',
+        emerald: '#10B981',
+        violet: '#8B5CF6',
+        orange: '#F97316',
+        blue: '#3B82F6'
+    };
+    document.documentElement.style.setProperty('--accent-color', colors[colorName] || colors.indigo);
 }
 
 function showScreen(screenName) {
@@ -167,6 +273,13 @@ function showScreen(screenName) {
         case 'exercises':
             renderExercisesLibrary();
             break;
+        case 'knowledge':
+            renderKnowledgeBase();
+            break;
+        case 'workout':
+            // Сброс формы при входе на экран тренировки
+            resetWorkoutForm();
+            break;
     }
 }
 
@@ -175,29 +288,26 @@ function renderInitialScreens() {
     loadSchedule();
     renderPrograms();
     renderExercisesLibrary();
+    renderKnowledgeBase();
 }
 
 // --- Тренировка ---
-function startCustomWorkout() {
-    resetWorkoutForm();
-    document.getElementById('custom-workout-form').classList.remove('hidden');
-    document.getElementById('new-workout-view').scrollIntoView({ behavior: 'smooth' });
-}
-
 function resetWorkoutForm() {
     document.getElementById('workout-name-input').value = '';
+    document.getElementById('workout-date').value = new Date().toISOString().slice(0, 16); // Текущая дата и время
     document.getElementById('workout-notes').value = '';
     document.getElementById('workout-exercises-container').innerHTML = '';
-    addExerciseToWorkoutForm(); // Добавить первое пустое упражнение
+    // Добавить первое пустое упражнение по умолчанию
+    addExerciseToWorkoutForm();
 }
 
-function addExerciseToWorkoutForm() {
+function addExerciseToWorkoutForm(name = '') {
     const container = document.getElementById('workout-exercises-container');
     const exerciseDiv = document.createElement('div');
     exerciseDiv.className = 'exercise-item';
     exerciseDiv.innerHTML = `
         <div class="exercise-header">
-            <input type="text" class="input-field exercise-name-input" placeholder="Название упражнения" required>
+            <input type="text" class="input-field exercise-name-input" placeholder="Название упражнения" value="${name}" required>
             <button class="btn btn-outline remove-exercise-btn">🗑️</button>
         </div>
         <div class="sets-container">
@@ -210,24 +320,6 @@ function addExerciseToWorkoutForm() {
         <button class="btn btn-outline add-set-btn">+ Подход</button>
     `;
     container.appendChild(exerciseDiv);
-
-    exerciseDiv.querySelector('.remove-exercise-btn').addEventListener('click', () => {
-        if (container.children.length > 1) { // Не удалять последнее
-            exerciseDiv.remove();
-        }
-    });
-
-    exerciseDiv.querySelector('.add-set-btn').addEventListener('click', () => {
-        const setsContainer = exerciseDiv.querySelector('.sets-container');
-        const setRow = document.createElement('div');
-        setRow.className = 'set-row';
-        setRow.innerHTML = `
-            <input type="number" class="set-input" placeholder="Вес">
-            <input type="number" class="set-input" placeholder="Повт.">
-            <input type="number" class="set-input" placeholder="Отдых (с)">
-        `;
-        setsContainer.appendChild(setRow);
-    });
 }
 
 function saveWorkout() {
@@ -240,7 +332,7 @@ function saveWorkout() {
     const newWorkout = {
         id: 'w_' + Date.now(), // Генерация уникального ID
         name: nameInput.value,
-        date: new Date().toISOString(),
+        date: document.getElementById('workout-date').value || new Date().toISOString(),
         exercises: [],
         notes: document.getElementById('workout-notes').value,
         templateId: null
@@ -266,217 +358,88 @@ function saveWorkout() {
     workouts.unshift(newWorkout); // Добавить в начало списка
     saveData('workouts', workouts);
     alert('Тренировка сохранена!');
+    // После сохранения, сбросить форму и вернуться на главную
     resetWorkoutForm();
-    document.getElementById('custom-workout-form').classList.add('hidden');
+    showScreen('home');
     updateStats(); // Обновить статистику на главной
 }
 
 // --- Шаблоны ---
-function showTemplatesForSelection() {
-    // Показать список шаблонов и позволить выбрать
-    const modal = document.getElementById('add-exercise-modal'); // Переиспользуем модальное окно
-    const body = modal.querySelector('.modal-body');
-    body.innerHTML = '<h3>Выберите шаблон</h3>';
-    
-    if (templates.length === 0) {
-        body.innerHTML += '<p>Шаблонов пока нет.</p>';
-        return;
-    }
-
-    templates.forEach(template => {
-        const div = document.createElement('div');
-        div.className = 'exercise-item-full'; // Используем существующий стиль
-        div.innerHTML = `<strong>${template.name}</strong>`;
-        div.addEventListener('click', () => {
-            loadTemplateIntoWorkout(template.id);
-            closeModal();
-        });
-        body.appendChild(div);
-    });
-    showModal('add-exercise-modal');
-}
-
-function loadTemplateIntoWorkout(templateId) {
-    const template = templates.find(t => t.id === templateId);
-    if (!template) return;
-
-    document.getElementById('workout-name-input').value = template.name + ' (Шаблон)';
-    document.getElementById('workout-notes').value = '';
-    const container = document.getElementById('workout-exercises-container');
-    container.innerHTML = '';
-
-    template.exercises.forEach(exercise => {
-        const exerciseDiv = document.createElement('div');
-        exerciseDiv.className = 'exercise-item';
-        let setsHtml = '';
-        for (let i = 0; i < exercise.setsCount; i++) {
-            setsHtml += `
-                <div class="set-row">
-                    <input type="number" class="set-input" placeholder="Вес">
-                    <input type="number" class="set-input" placeholder="Повт.">
-                    <input type="number" class="set-input" placeholder="Отдых (с)">
-                </div>
-            `;
-        }
-        exerciseDiv.innerHTML = `
-            <div class="exercise-header">
-                <input type="text" class="input-field exercise-name-input" value="${exercise.name}" readonly>
-                <button class="btn btn-outline remove-exercise-btn">🗑️</button>
-            </div>
-            <div class="sets-container">
-                ${setsHtml}
-            </div>
-            <button class="btn btn-outline add-set-btn">+ Подход</button>
-        `;
-        container.appendChild(exerciseDiv);
-
-        // Добавить обработчики для новых кнопок
-        exerciseDiv.querySelector('.remove-exercise-btn').addEventListener('click', () => {
-            if (container.children.length > 1) {
-                exerciseDiv.remove();
-            }
-        });
-        exerciseDiv.querySelector('.add-set-btn').addEventListener('click', () => {
-            const setsContainer = exerciseDiv.querySelector('.sets-container');
-            const setRow = document.createElement('div');
-            setRow.className = 'set-row';
-            setRow.innerHTML = `
-                <input type="number" class="set-input" placeholder="Вес">
-                <input type="number" class="set-input" placeholder="Повт.">
-                <input type="number" class="set-input" placeholder="Отдых (с)">
-            `;
-            setsContainer.appendChild(setRow);
-        });
-    });
-
-    document.getElementById('custom-workout-form').classList.remove('hidden');
-    document.getElementById('new-workout-view').scrollIntoView({ behavior: 'smooth' });
-}
-
 function saveCurrentWorkoutAsTemplate() {
-    const nameInput = document.getElementById('template-name-input');
-    if (!nameInput.value.trim()) {
-        alert('Пожалуйста, введите название шаблона.');
+    const name = prompt('Введите название для шаблона:');
+    if (!name || !name.trim()) {
+        alert('Название шаблона не может быть пустым.');
         return;
     }
 
-    if (!currentWorkout) {
-        alert('Нет активной тренировки для сохранения как шаблона.');
+    // Получаем данные из текущей формы тренировки
+    const nameInput = document.getElementById('workout-name-input');
+    if (!nameInput.value.trim()) {
+        alert('Пожалуйста, сначала создайте тренировку.');
         return;
     }
 
     const newTemplate = {
         id: 't_' + Date.now(),
-        name: nameInput.value,
+        name: name,
         exercises: []
     };
 
-    // Сохраняем только упражнения и количество подходов
-    currentWorkout.exercises.forEach(ex => {
+    document.querySelectorAll('#workout-exercises-container .exercise-item').forEach(item => {
+        const name = item.querySelector('.exercise-name-input').value;
+        if (!name) return;
+
+        // Сохраняем только упражнение и количество подходов
+        const setsCount = item.querySelectorAll('.set-row').length;
         newTemplate.exercises.push({
-            name: ex.name,
-            setsCount: ex.sets.length // Только количество
+            name: name,
+            setsCount: setsCount
         });
     });
 
     templates.push(newTemplate);
     saveData('templates', templates);
     alert('Шаблон сохранён!');
-    nameInput.value = ''; // Очистить поле
-    closeFinishWorkoutForm();
-}
-
-function closeFinishWorkoutForm() {
-    document.getElementById('finish-workout-form').classList.add('hidden');
-    document.getElementById('active-workout-view').classList.add('hidden');
-    document.getElementById('new-workout-view').classList.remove('hidden');
-    isWorkoutActive = false;
-    currentWorkout = null;
-}
-
-function finishWorkout() {
-    document.getElementById('active-workout-view').classList.add('hidden');
-    document.getElementById('finish-workout-form').classList.remove('hidden');
 }
 
 // --- Программы ---
-function showProgramDaysForSelection() {
-    if (!activeProgram) {
-        alert('Нет активной программы. Сначала выберите программу в разделе "Программы".');
-        showScreen('programs');
+function saveProgramFromModal() {
+    const name = document.getElementById('program-name-input').value;
+    const level = document.getElementById('program-level').value;
+    const type = document.getElementById('program-type').value;
+    const duration = parseInt(document.getElementById('program-duration').value);
+    const description = document.getElementById('program-description').value;
+    let exercisesJson = document.getElementById('program-exercises-json').value;
+
+    if (!name) {
+        alert('Введите название программы.');
         return;
     }
-    document.getElementById('select-program-day-section').classList.remove('hidden');
-    renderProgramDays(activeProgram);
-}
 
-function renderProgramDays(program) {
-    const container = document.getElementById('program-days-list');
-    container.innerHTML = '';
-    program.days.forEach(day => {
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-outline';
-        btn.textContent = `${day.title} (${day.exercises.length} упр.)`;
-        btn.addEventListener('click', () => {
-            loadProgramDayIntoWorkout(program, day);
-        });
-        container.appendChild(btn);
-    });
-}
+    try {
+        // Попробуем распарсить JSON упражнений
+        const parsedExercises = JSON.parse(exercisesJson);
+        if (!Array.isArray(parsedExercises)) throw new Error('Упражнения должны быть массивом.');
 
-function loadProgramDayIntoWorkout(program, day) {
-    document.getElementById('workout-name-input').value = `[${program.name}] ${day.title}`;
-    document.getElementById('workout-notes').value = day.notes || '';
-    const container = document.getElementById('workout-exercises-container');
-    container.innerHTML = '';
+        const newProgram = {
+            id: 'p_' + Date.now(),
+            name: name,
+            level: level,
+            type: type,
+            durationWeeks: duration,
+            description: description,
+            exercises: parsedExercises // Сохраняем структуру как есть
+        };
 
-    day.exercises.forEach(exercise => {
-        const exerciseDiv = document.createElement('div');
-        exerciseDiv.className = 'exercise-item';
-        let setsHtml = '';
-        // Предполагаем, что в программе указано количество подходов
-        for (let i = 0; i < exercise.setsCount || 3; i++) { // По умолчанию 3 подхода
-            setsHtml += `
-                <div class="set-row">
-                    <input type="number" class="set-input" placeholder="Вес">
-                    <input type="number" class="set-input" placeholder="Повт.">
-                    <input type="number" class="set-input" placeholder="Отдых (с)">
-                </div>
-            `;
-        }
-        exerciseDiv.innerHTML = `
-            <div class="exercise-header">
-                <input type="text" class="input-field exercise-name-input" value="${exercise.name}" readonly>
-                <button class="btn btn-outline remove-exercise-btn">🗑️</button>
-            </div>
-            <div class="sets-container">
-                ${setsHtml}
-            </div>
-            <button class="btn btn-outline add-set-btn">+ Подход</button>
-        `;
-        container.appendChild(exerciseDiv);
-
-        exerciseDiv.querySelector('.remove-exercise-btn').addEventListener('click', () => {
-            if (container.children.length > 1) {
-                exerciseDiv.remove();
-            }
-        });
-        exerciseDiv.querySelector('.add-set-btn').addEventListener('click', () => {
-            const setsContainer = exerciseDiv.querySelector('.sets-container');
-            const setRow = document.createElement('div');
-            setRow.className = 'set-row';
-            setRow.innerHTML = `
-                <input type="number" class="set-input" placeholder="Вес">
-                <input type="number" class="set-input" placeholder="Повт.">
-                <input type="number" class="set-input" placeholder="Отдых (с)">
-            `;
-            setsContainer.appendChild(setRow);
-        });
-    });
-
-    document.getElementById('custom-workout-form').classList.remove('hidden');
-    document.getElementById('select-program-day-section').classList.add('hidden');
-    document.getElementById('new-workout-view').scrollIntoView({ behavior: 'smooth' });
+        programs.push(newProgram);
+        saveData('programs', programs);
+        alert('Программа добавлена!');
+        closeModal();
+        renderPrograms(); // Обновить список
+    } catch (e) {
+        alert('Ошибка в формате JSON упражнений. Проверьте синтаксис.');
+        console.error(e);
+    }
 }
 
 function renderPrograms() {
@@ -485,7 +448,7 @@ function renderPrograms() {
     programs.forEach(prog => {
         const div = document.createElement('div');
         div.className = 'program-item';
-        div.innerHTML = `<strong>${prog.name}</strong><br><small>${prog.description}</small>`;
+        div.innerHTML = `<strong>${prog.name}</strong><br><small>${prog.description || 'Нет описания'}</small>`;
         div.addEventListener('click', () => {
             // Сделать программу активной
             activeProgram = prog;
@@ -503,7 +466,7 @@ function renderExercisesLibrary() {
     exercisesLibrary.forEach(ex => {
         const div = document.createElement('div');
         div.className = 'exercise-item-full';
-        div.innerHTML = `<strong>${ex.name}</strong><br><small>Группа: ${ex.muscleGroup}</small>`;
+        div.innerHTML = `<strong>${ex.name}</strong><br><small>Группа: ${ex.muscleGroup}, Подгруппа: ${ex.subgroup}</small>`;
         container.appendChild(div);
     });
 }
@@ -511,6 +474,7 @@ function renderExercisesLibrary() {
 function addCustomExerciseToLibrary() {
     const name = document.getElementById('custom-exercise-name').value;
     const group = document.getElementById('custom-exercise-muscle-group').value;
+    const subgroup = document.getElementById('custom-exercise-subgroup').value;
     const desc = document.getElementById('custom-exercise-description').value;
 
     if (!name) {
@@ -522,6 +486,7 @@ function addCustomExerciseToLibrary() {
         id: 'e_' + Date.now(),
         name: name,
         muscleGroup: group,
+        subgroup: subgroup,
         description: desc,
         image: '' // Пока без изображения
     };
@@ -540,6 +505,7 @@ function addCalories(amount, description = '', time = null) {
         trackerData.calories[today] = [];
     }
     trackerData.calories[today].push({
+        id: 'c_' + Date.now(),
         amount: amount,
         description: description,
         time: time || new Date().toTimeString().substring(0, 5)
@@ -561,12 +527,29 @@ function addCaloriesManually() {
     descInput.value = '';
 }
 
+function addCaloriesFromModal() {
+    const input = document.getElementById('calories-modal-input');
+    const descInput = document.getElementById('calories-modal-desc');
+    const timeInput = document.getElementById('calories-modal-time');
+    const amount = parseInt(input.value);
+    if (isNaN(amount) || amount <= 0) {
+        alert('Введите корректное количество калорий.');
+        return;
+    }
+    addCalories(amount, descInput.value, timeInput.value || null);
+    input.value = '';
+    descInput.value = '';
+    timeInput.value = '';
+    closeModal();
+}
+
 function addWater(amount, time = null) {
     const today = new Date().toISOString().split('T')[0];
     if (!trackerData.water[today]) {
         trackerData.water[today] = [];
     }
     trackerData.water[today].push({
+        id: 'w_' + Date.now(),
         amount: amount,
         time: time || new Date().toTimeString().substring(0, 5)
     });
@@ -585,6 +568,20 @@ function addWaterManually() {
     input.value = '';
 }
 
+function addWaterFromModal() {
+    const input = document.getElementById('water-modal-input');
+    const timeInput = document.getElementById('water-modal-time');
+    const amount = parseFloat(input.value);
+    if (isNaN(amount) || amount <= 0) {
+        alert('Введите корректное количество воды.');
+        return;
+    }
+    addWater(amount, timeInput.value || null);
+    input.value = '';
+    timeInput.value = '';
+    closeModal();
+}
+
 function updateTrackerDisplay() {
     const today = new Date().toISOString().split('T')[0];
 
@@ -595,6 +592,7 @@ function updateTrackerDisplay() {
     document.getElementById('calories-goal').textContent = calorieGoal;
     const caloriePercentage = Math.min(100, (caloriesToday / calorieGoal) * 100);
     document.getElementById('calories-progress-bar').querySelector('.progress-fill').style.width = caloriePercentage + '%';
+    document.getElementById('calories-progress-text').textContent = `${caloriesToday} / ${calorieGoal} ккал`;
 
     // Вода
     const waterToday = trackerData.water[today] ? trackerData.water[today].reduce((sum, entry) => sum + entry.amount, 0) : 0.0;
@@ -603,13 +601,38 @@ function updateTrackerDisplay() {
     document.getElementById('water-goal').textContent = waterGoal.toFixed(2);
     const waterPercentage = Math.min(100, (waterToday / waterGoal) * 100);
     document.getElementById('water-progress-bar').querySelector('.progress-fill').style.width = waterPercentage + '%';
+    document.getElementById('water-progress-text').textContent = `${waterToday.toFixed(2)} / ${waterGoal.toFixed(2)} л`;
+}
+
+function saveCalorieGoal() {
+    const newGoal = parseInt(document.getElementById('daily-calorie-goal').value);
+    if (!isNaN(newGoal) && newGoal > 0) {
+        userGoals.calories = newGoal;
+        saveData('userGoals', userGoals);
+        updateTrackerDisplay();
+        alert('Цель по калориям обновлена!');
+    } else {
+        alert('Введите корректное значение цели.');
+    }
+}
+
+function saveWaterGoal() {
+    const newGoal = parseFloat(document.getElementById('daily-water-goal').value);
+    if (!isNaN(newGoal) && newGoal > 0) {
+        userGoals.water = newGoal;
+        saveData('userGoals', userGoals);
+        updateTrackerDisplay();
+        alert('Цель по воде обновлена!');
+    } else {
+        alert('Введите корректное значение цели.');
+    }
 }
 
 // --- История ---
 function renderHistory() {
     const container = document.getElementById('history-list');
     container.innerHTML = '';
-    workouts.slice(0, 20).forEach(workout => { // Показать последние 20
+    workouts.forEach(workout => { // Показать все
         const div = document.createElement('div');
         div.className = 'history-item';
         const date = new Date(workout.date).toLocaleDateString('ru-RU');
@@ -679,6 +702,18 @@ function updateStats() {
     });
 }
 
+// --- База знаний ---
+function renderKnowledgeBase() {
+    const container = document.getElementById('knowledge-content');
+    container.innerHTML = '';
+    knowledgeArticles.forEach(article => {
+        const articleDiv = document.createElement('div');
+        articleDiv.className = 'article-preview';
+        articleDiv.innerHTML = `<h3>${article.title}</h3><p>${article.content.substring(0, 100)}...</p><button class="btn btn-outline read-more-btn">Читать далее</button>`;
+        container.appendChild(articleDiv);
+    });
+}
+
 // --- Модальные окна ---
 function showModal(modalId) {
     document.getElementById('modal-overlay').classList.remove('hidden');
@@ -688,6 +723,21 @@ function showModal(modalId) {
 function closeModal() {
     document.getElementById('modal-overlay').classList.add('hidden');
     document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden'));
+}
+
+// --- Калькулятор 1ПМ ---
+function calculate1RM() {
+    const weight = parseFloat(document.getElementById('calc-weight').value);
+    const reps = parseInt(document.getElementById('calc-reps').value);
+
+    if (isNaN(weight) || isNaN(reps) || weight <= 0 || reps <= 0) {
+        document.getElementById('result-1rm').textContent = 'Ошибка ввода.';
+        return;
+    }
+
+    // Формула Бжицкого: 1RM = w * (1 + r / 30)
+    const oneRepMax = weight * (1 + reps / 30);
+    document.getElementById('result-1rm').textContent = `Результат: ${oneRepMax.toFixed(2)} кг`;
 }
 
 // --- Тема ---
@@ -720,13 +770,35 @@ function loadData(key) {
 
 // --- Утилиты для фильтров ---
 function setupFilterButtons(selector, listSelector, itemType) {
-    document.querySelectorAll(selector).forEach(btn => {
-        btn.addEventListener('click', () => {
+    // Используем делегирование событий для динамических элементов
+    document.querySelector(listSelector)?.parentElement?.addEventListener('click', function(e) {
+        if (e.target.matches(`${selector}`)) {
             document.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            e.target.classList.add('active');
             // Здесь должна быть логика фильтрации списка
             // Пока заглушка
-            console.log(`Фильтр ${itemType} изменён на:`, btn.dataset.filter);
-        });
+            console.log(`Фильтр ${itemType} изменён на:`, e.target.dataset.filter);
+            // Пример фильтрации (нужно адаптировать под каждый тип)
+            // filterList(listSelector, itemType, e.target.dataset.filter);
+        }
     });
 }
+
+// --- Вспомогательные функции для фильтрации (заглушка) ---
+/*
+function filterList(listSelector, itemType, filterValue) {
+    const items = document.querySelectorAll(`${listSelector} .${itemType}-item`);
+    items.forEach(item => {
+        // Пример логики для упражнений
+        if (itemType === 'exercise') {
+            const muscleGroup = item.dataset.muscleGroup;
+            if (filterValue === 'all' || muscleGroup === filterValue) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        }
+        // Добавить логику для программ, истории и т.д.
+    });
+}
+*/
